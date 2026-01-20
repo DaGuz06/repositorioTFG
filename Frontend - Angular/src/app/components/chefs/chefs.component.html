@@ -1,0 +1,13 @@
+<section class="chefs-section">
+  <h2>Chefs Recomendados</h2>
+  <div class="chefs-grid">
+    <div class="chef-card" *ngFor="let chef of chefs">
+      <div class="chef-image-container">
+        <img [src]="chef.image" alt="{{ chef.name }}" class="chef-image">
+      </div>
+      <h3>{{ chef.name }}</h3>
+      <p class="specialty">{{ chef.specialty }}</p>
+      <button class="view-profile-btn">Ver Perfil</button>
+    </div>
+  </div>
+</section>

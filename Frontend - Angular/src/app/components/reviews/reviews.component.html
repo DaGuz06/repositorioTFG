@@ -1,0 +1,15 @@
+<section class="reviews-section">
+  <h2>Lo que dicen nuestros clientes</h2>
+  <div class="reviews-grid">
+    <div class="review-card" *ngFor="let review of reviews">
+      <div class="review-header">
+        <img [src]="review.avatar" alt="{{ review.name }}" class="avatar">
+        <h3>{{ review.name }}</h3>
+      </div>
+      <p class="review-comment">"{{ review.comment }}"</p>
+      <div class="review-rating">
+        <span *ngFor="let star of [].constructor(review.rating)">★</span>
+      </div>
+    </div>
+  </div>
+</section>

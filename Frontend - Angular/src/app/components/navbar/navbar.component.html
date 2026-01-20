@@ -1,0 +1,32 @@
+<header>
+  <nav>
+    <div class="navbar">
+
+      <button class="hamburger-menu" (click)="toggleMenu()" aria-label="Toggle menu">
+        <span class="bar"></span>
+        <span class="bar"></span>
+        <span class="bar"></span>
+      </button>
+
+      <ul class="navbarLogo">
+        <li class="logo" routerLink="/" style="cursor: pointer;"><img src="/logoPro.jpg" alt="logo"></li>
+      </ul>
+
+      <ul class="navbarList" [class.active]="isMenuOpen">
+        <li class="navbarLink"><a routerLink="/about" class="nav-link">Sobre Nosotros</a></li>
+        <li class="navbarLink"><a routerLink="/chefs" class="nav-2link">Chefs</a></li>
+        <li class="navbarLink"><a routerLink="/menu-of-month" class="nav-link">Menú del Mes</a></li>
+
+        <ng-container *ngIf="!isLoggedIn; else loggedInBlock">
+          <li class="navbarLink"><a routerLink="/login" class="nav-link">Iniciar Sesión</a></li>
+          <li class="navbarLink"><a routerLink="/register" class="register-btn">Registrarse</a></li>
+        </ng-container>
+
+        <ng-template #loggedInBlock>
+          <li class="navbarLink"><a routerLink="/profile" class="profile-btn">Perfil</a></li>
+          <li class="navbarLink"><a (click)="logout()" class="nav-link" style="cursor: pointer;">Cerrar Sesión</a></li>
+        </ng-template>
+      </ul>
+    </div>
+  </nav>
+</header>
