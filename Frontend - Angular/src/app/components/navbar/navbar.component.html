@@ -15,7 +15,6 @@
       <ul class="navbarList" [class.active]="isMenuOpen">
         <li class="navbarLink"><a routerLink="/about" class="nav-link">Sobre Nosotros</a></li>
         <li class="navbarLink"><a routerLink="/chefs" class="nav-2link">Chefs</a></li>
-        <li class="navbarLink"><a routerLink="/menu-of-month" class="nav-link">Menú del Mes</a></li>
 
         <ng-container *ngIf="!isLoggedIn; else loggedInBlock">
           <li class="navbarLink"><a routerLink="/login" class="nav-link">Iniciar Sesión</a></li>

@@ -1,6 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-navbar',
@@ -13,14 +14,13 @@ export class NavbarComponent implements OnInit {
   isMenuOpen = false;
   isLoggedIn = false;
   private router = inject(Router);
+  private authService = inject(AuthService);
 
   ngOnInit() {
-    this.checkLoginStatus();
-  }
-
-  checkLoginStatus() {
-    // strict check for token existence
-    this.isLoggedIn = !!localStorage.getItem('chefpro_token');
+    // Subscribe to auth state changes
+    this.authService.isLoggedIn$.subscribe(status => {
+      this.isLoggedIn = status;
+    });
   }
 
   toggleMenu() {
@@ -28,9 +28,7 @@ export class NavbarComponent implements OnInit {
   }
 
   logout() {
-    localStorage.removeItem('chefpro_token');
-    localStorage.removeItem('chefpro_user');
-    this.isLoggedIn = false;
+    this.authService.logout();
     this.router.navigate(['/login']);
   }
 }

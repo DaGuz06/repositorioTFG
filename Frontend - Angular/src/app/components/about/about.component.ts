@@ -16,7 +16,7 @@ import { CommonModule } from '@angular/common';
         <div class="grid">
           <div class="card">
             <h3>Nuestra Misión</h3>
-            <p>Democratizar la alta cocina permitiendo que chefs talentosos compartan su arte directamente con comensales apasionados.</p>
+            <p>Democratizar la alta cocina permitiendo que chefs talentosos compartan su talento directamente con comensales apasionados.</p>
           </div>
           <div class="card">
             <h3>Para Chefs</h3>
@@ -25,6 +25,10 @@ import { CommonModule } from '@angular/common';
           <div class="card">
             <h3>Para Comensales</h3>
             <p>Descubre sabores únicos, menús exclusivos y la historia detrás de cada plato, todo desde la comodidad de tu hogar o en eventos privados.</p>
+          </div>
+          <div class="card">
+            <h3>¿Que ofrecemos?</h3>
+            <p>Ofrecemos una plataforma para que chefs y comensales puedan conectarse facilmente.</p>
           </div>
         </div>
       </div>
