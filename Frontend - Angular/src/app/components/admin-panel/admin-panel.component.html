@@ -1,0 +1,145 @@
+<div class="admin-container">
+  <header class="admin-header">
+    <h1>Panel de Administración</h1>
+    <button class="logout-btn" (click)="logout()">Cerrar Sesión</button>
+  </header>
+
+  <nav class="admin-tabs">
+    <button 
+      [class.active]="activeTab === 'users'" 
+      (click)="switchTab('users')">
+      Usuarios
+    </button>
+    <button 
+      [class.active]="activeTab === 'chefs'" 
+      (click)="switchTab('chefs')">
+      Chefs
+    </button>
+    <button 
+      [class.active]="activeTab === 'reviews'" 
+      (click)="switchTab('reviews')">
+      Reseñas
+    </button>
+  </nav>
+
+  <div class="admin-content">
+    <div *ngIf="loading" class="loading">Cargando...</div>
+
+    <!-- Users Tab -->
+    <div *ngIf="activeTab === 'users' && !loading" class="table-container">
+      <h2>Gestión de Usuarios</h2>
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Email</th>
+            <th>Rol</th>
+            <th>Estado</th>
+            <th>Fecha Registro</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of users">
+            <td>{{ user.id }}</td>
+            <td>{{ user.name }}</td>
+            <td>{{ user.email }}</td>
+            <td>
+              <span class="role-badge" [class.chef]="user.role_id === 1" [class.admin]="user.role_id === 3">
+                {{ getRoleName(user.role_id) }}
+              </span>
+            </td>
+            <td>
+              <span class="status-badge" [class.active]="user.active === 1" [class.inactive]="user.active === 0">
+                {{ user.active === 1 ? 'Activo' : 'Inactivo' }}
+              </span>
+            </td>
+            <td>{{ user.created_at | date:'short' }}</td>
+            <td class="actions">
+              <button 
+                class="btn-toggle" 
+                (click)="toggleUserStatus(user.id, user.active)"
+                [disabled]="user.role_id === 3">
+                {{ user.active === 1 ? 'Desactivar' : 'Activar' }}
+              </button>
+              <button 
+                class="btn-delete" 
+                (click)="deleteUser(user.id)"
+                [disabled]="user.role_id === 3">
+                Eliminar
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <p *ngIf="users.length === 0" class="no-data">No hay usuarios registrados</p>
+    </div>
+
+    <!-- Chefs Tab -->
+    <div *ngIf="activeTab === 'chefs' && !loading" class="table-container">
+      <h2>Gestión de Chefs</h2>
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Email</th>
+            <th>Especialidades</th>
+            <th>Zona de Trabajo</th>
+            <th>Rating</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let chef of chefs">
+            <td>{{ chef.user_id }}</td>
+            <td>{{ chef.name }}</td>
+            <td>{{ chef.email }}</td>
+            <td>{{ chef.specialties || 'No especificado' }}</td>
+            <td>{{ chef.work_zone || 'No especificado' }}</td>
+            <td>
+              <span class="rating">⭐ {{ chef.rating || 5.0 }}</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <p *ngIf="chefs.length === 0" class="no-data">No hay chefs registrados</p>
+    </div>
+
+    <!-- Reviews Tab -->
+    <div *ngIf="activeTab === 'reviews' && !loading" class="table-container">
+      <h2>Gestión de Reseñas</h2>
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Chef</th>
+            <th>Usuario</th>
+            <th>Comentario</th>
+            <th>Rating</th>
+            <th>Fecha</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let review of reviews">
+            <td>{{ review.id }}</td>
+            <td>{{ review.chef_name || 'Chef #' + review.chef_id }}</td>
+            <td>{{ review.user_name || 'Usuario #' + review.user_id }}</td>
+            <td class="review-text">{{ review.text }}</td>
+            <td>
+              <span class="rating">⭐ {{ review.rating }}</span>
+            </td>
+            <td>{{ review.created_at | date:'short' }}</td>
+            <td class="actions">
+              <button class="btn-delete" (click)="deleteReview(review.id)">
+                Eliminar
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <p *ngIf="reviews.length === 0" class="no-data">No hay reseñas registradas</p>
+    </div>
+  </div>
+</div>
