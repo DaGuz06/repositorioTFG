@@ -6,7 +6,8 @@
     "scripts": {
         "start": "ts-node server.ts",
         "dev": "nodemon server.ts",
-        "build": "tsc"
+        "build": "tsc",
+        "db:setup": "ts-node import_db.ts && ts-node seed.ts"
     },
     "keywords": [],
     "author": "",

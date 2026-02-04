@@ -1,143 +1,178 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { ChefService } from '../../services/chef.service';
 
 @Component({
   selector: 'app-complete-profile',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, ReactiveFormsModule],
   template: `
-    <div class="auth-container">
-      <div class="auth-card">
-        <h2>Completa tu Perfil</h2>
-        <p class="auth-subtitle">Cuéntanos más sobre tu cocina para que los comensales te encuentren.</p>
+    <div class="page-container">
+      <div class="form-card">
+        <h2>Completa tu Perfil de Chef</h2>
+        <p class="subtitle">Cuéntanos más sobre ti para que los comensales puedan encontrarte.</p>
 
-        <form (ngSubmit)="onSubmit()" class="auth-form">
-          <div class="form-group">
-            <label for="work_zone">Zona de Trabajo</label>
-            <input type="text" id="work_zone" name="work_zone" [(ngModel)]="formData.work_zone" placeholder="Ej: Madrid Centro, Barcelona..." required>
-          </div>
-
+        <form [formGroup]="profileForm" (ngSubmit)="onSubmit()">
           <div class="form-group">
             <label for="specialties">Especialidades (separadas por comas)</label>
-            <input type="text" id="specialties" name="specialties" [(ngModel)]="formData.specialties" placeholder="Ej: Italiana, Sushi, Vegana" required>
-          </div>
-          
-          <div class="form-group checkbox-group">
-            <input type="checkbox" id="has_vehicle" name="has_vehicle" [(ngModel)]="formData.has_vehicle">
-            <label for="has_vehicle">¿Tienes vehículo propio?</label>
+            <input id="specialties" type="text" formControlName="specialties" placeholder="Ej: Italiana, Sushi, Vegana">
           </div>
 
           <div class="form-group">
-            <label for="bio">Biografía / Presentación</label>
-            <textarea id="bio" name="bio" [(ngModel)]="formData.bio" placeholder="Describe tu experiencia y pasión por la cocina..." rows="4" required></textarea>
+            <label for="work_zone">Zona de Trabajo</label>
+            <input id="work_zone" type="text" formControlName="work_zone" placeholder="Ej: Madrid Centro, Barcelona, Sevilla">
           </div>
 
-          <button type="submit" class="auth-button">Guardar Perfil</button>
+          <div class="form-group checkbox-group">
+            <input id="has_vehicle" type="checkbox" formControlName="has_vehicle">
+            <label for="has_vehicle">¿Dispones de vehículo propio?</label>
+          </div>
+
+          <div class="form-group">
+            <label for="bio">Biografía / Sobre mí</label>
+            <textarea id="bio" formControlName="bio" rows="4" placeholder="Describe tu experiencia y pasión por la cocina..."></textarea>
+          </div>
+
+          <button type="submit" [disabled]="profileForm.invalid || loading" class="submit-btn">
+            {{ loading ? 'Guardando...' : 'Guardar Perfil' }}
+          </button>
+
+          <p *ngIf="errorMessage" class="error-message">{{ errorMessage }}</p>
         </form>
       </div>
     </div>
   `,
   styles: [`
-    .auth-container {
+    .page-container {
       display: flex;
       justify-content: center;
-      align-items: center;
-      min-height: 90vh;
+      padding: 4rem 2rem;
       background-color: #f9f9f9;
-      padding: 2rem;
+      min-height: 80vh;
     }
-    .auth-card {
+    .form-card {
       background: white;
       padding: 2.5rem;
-      border-radius: 10px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
       width: 100%;
-      max-width: 500px;
+      max-width: 600px;
+    }
+    h2 {
+      color: #333;
+      margin-bottom: 0.5rem;
       text-align: center;
     }
-    h2 { color: #333; margin-bottom: 0.5rem; }
-    .auth-subtitle { color: #666; margin-bottom: 2rem; }
-    .auth-form { display: flex; flex-direction: column; gap: 1.5rem; }
-    .form-group { text-align: left; }
-    .form-group label { display: block; margin-bottom: 0.5rem; color: #333; font-weight: 500; }
-    .form-group input[type="text"], .form-group textarea {
-      width: 100%; padding: 0.8rem; border: 1px solid #ddd; border-radius: 5px; font-size: 1rem; box-sizing: border-box;
+    .subtitle {
+      color: #666;
+      text-align: center;
+      margin-bottom: 2rem;
     }
-    .form-group input:focus, .form-group textarea:focus {
-      border-color: #C7A446; outline: none;
+    .form-group {
+      margin-bottom: 1.5rem;
     }
-    .checkbox-group { display: flex; align-items: center; gap: 0.5rem; }
-    .checkbox-group input { width: auto; }
-    .checkbox-group label { margin-bottom: 0; }
-    .auth-button {
-      background-color: #C7A446; color: white; border: none; padding: 1rem;
-      font-size: 1.1rem; border-radius: 50px; cursor: pointer; margin-top: 1rem; width: 100%;
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: #333;
+      font-weight: 500;
     }
-    .auth-button:hover { background-color: #7A8A56; }
+    input[type="text"], textarea {
+      width: 100%;
+      padding: 0.8rem;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: border-color 0.3s;
+    }
+    input[type="text"]:focus, textarea:focus {
+      border-color: #C7A446;
+      outline: none;
+    }
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .checkbox-group input {
+      width: auto;
+      transform: scale(1.2);
+    }
+    .checkbox-group label {
+      margin-bottom: 0;
+      cursor: pointer;
+    }
+    .submit-btn {
+      width: 100%;
+      padding: 1rem;
+      background-color: #C7A446;
+      color: white;
+      border: none;
+      border-radius: 25px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s;
+      margin-top: 1rem;
+    }
+    .submit-btn:hover:not(:disabled) {
+      background-color: #7A8A56;
+    }
+    .submit-btn:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+    .error-message {
+      color: #dc3545;
+      text-align: center;
+      margin-top: 1rem;
+    }
   `]
 })
-export class CompleteProfileComponent implements OnInit {
-  formData = {
-    work_zone: '',
-    specialties: '',
-    has_vehicle: false,
-    bio: ''
-  };
-
-  private http = inject(HttpClient);
+export class CompleteProfileComponent {
+  private fb = inject(FormBuilder);
+  private chefService = inject(ChefService);
   private router = inject(Router);
 
-  ngOnInit() {
-    const userStr = localStorage.getItem('chefpro_user');
-    if (!userStr) {
-      alert('Debes iniciar sesión primero');
-      this.router.navigate(['/login']);
-      return;
-    }
-    const user = JSON.parse(userStr);
+  profileForm = this.fb.group({
+    specialties: ['', Validators.required],
+    work_zone: ['', Validators.required],
+    has_vehicle: [false],
+    bio: ['', Validators.required]
+  });
 
-    // Fetch existing profile to pre-fill
-    this.http.get<any>(`/api/chefs/${user.id}`).subscribe({
-      next: (data) => {
-        if (data) {
-          this.formData = {
-            work_zone: data.work_zone || '',
-            specialties: data.specialties ? data.specialties.join(', ') : '',
-            has_vehicle: data.has_vehicle,
-            bio: data.bio || ''
-          };
-        }
-      },
-      error: (err) => {
-        // 404 is expected for new profiles, ignore
-        if (err.status !== 404) console.error(err);
-      }
-    });
-  }
+  loading = false;
+  errorMessage = '';
 
   onSubmit() {
-    const userStr = localStorage.getItem('chefpro_user');
-    if (!userStr) return;
-    const user = JSON.parse(userStr);
+    if (this.profileForm.invalid) return;
 
-    const payload = {
-      ...this.formData,
+    this.loading = true;
+    const userStr = localStorage.getItem('chefpro_user');
+
+    if (!userStr) {
+      this.errorMessage = 'No has iniciado sesión.';
+      this.loading = false;
+      return;
+    }
+
+    const user = JSON.parse(userStr);
+    const profileData = {
+      ...this.profileForm.value,
       user_id: user.id
     };
 
-    this.http.post('/api/chefs/profile', payload).subscribe({
-      next: (res: any) => {
-        if (res.success) {
-          alert('Perfil guardado correctamente');
-          this.router.navigate(['/profile']);
-        }
+    this.chefService.createProfile(profileData).subscribe({
+      next: () => {
+        this.loading = false;
+        this.router.navigate(['/profile']);
       },
       error: (err) => {
-        console.error(err);
-        alert('Error al guardar el perfil');
+        console.error('Error saving profile', err);
+        this.errorMessage = 'Hubo un error al guardar el perfil. Inténtalo de nuevo.';
+        this.loading = false;
       }
     });
   }
