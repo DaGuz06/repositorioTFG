@@ -1,0 +1,27 @@
+<div class="reservation-container">
+  <h2>Nueva Reserva</h2>
+  <form (ngSubmit)="onSubmit()" #reservationForm="ngForm">
+    <div class="form-group">
+      <label for="name">Nombre</label>
+      <input type="text" id="name" name="name" [(ngModel)]="reservation.name" required class="form-control">
+    </div>
+
+    <div class="form-group">
+      <label for="street">Calle</label>
+      <input type="text" id="street" name="street" [(ngModel)]="reservation.street" required class="form-control">
+    </div>
+
+    <div class="form-group">
+      <label for="contact_number">Número de Contacto</label>
+      <input type="text" id="contact_number" name="contact_number" [(ngModel)]="reservation.contact_number" required
+        class="form-control">
+    </div>
+
+    <div class="form-group">
+      <label for="date">Fecha y Hora</label>
+      <input type="datetime-local" id="date" name="date" [(ngModel)]="dateString" required class="form-control">
+    </div>
+
+    <button type="submit" [disabled]="!reservationForm.form.valid" class="btn-submit">Reservar</button>
+  </form>
+</div>

@@ -2,6 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { ChefService } from '../../services/chef.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-chefs',
@@ -21,7 +22,10 @@ import { ChefService } from '../../services/chef.service';
             <h2>{{ chef.name }}</h2>
             <p class="specialty">{{ chef.specialties.join(', ') }}</p>
             <div class="rating">⭐ {{ chef.rating }}</div>
-            <button class="hire-btn">Contratar</button>
+            <div class="actions">
+              <button class="hire-btn" (click)="hireChef(chef.id)">Contratar</button>
+              <button class="profile-btn" (click)="viewProfile(chef.id)">Ver Perfil</button>
+            </div>
           </div>
         </div>
       </div>
@@ -112,12 +116,32 @@ import { ChefService } from '../../services/chef.service';
       font-size: 1.2rem;
       margin-top: 3rem;
     }
+    .actions {
+      display: flex;
+      gap: 10px;
+    }
+    .profile-btn {
+      width: 100%;
+      padding: 0.8rem;
+      background-color: transparent;
+      color: #7A8A56;
+      border: 2px solid #7A8A56;
+      border-radius: 25px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .profile-btn:hover {
+      background-color: #7A8A56;
+      color: white;
+    }
   `]
 })
 export class ChefsComponent implements OnInit {
   chefs: any[] = [];
   loading = true;
   private chefService = inject(ChefService);
+  private router = inject(Router);
 
   ngOnInit() {
     this.chefService.getChefs().subscribe({
@@ -130,5 +154,13 @@ export class ChefsComponent implements OnInit {
         this.loading = false;
       }
     });
+  }
+
+  viewProfile(id: number) {
+    this.router.navigate(['/chef', id]);
+  }
+
+  hireChef(id: number) {
+    this.router.navigate(['/reservations'], { queryParams: { chefId: id } });
   }
 }

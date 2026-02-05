@@ -82,4 +82,17 @@ CREATE TABLE IF NOT EXISTS `reservations` (
   FOREIGN KEY (`chef_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- 7. Test Data (Usuarios de Prueba)
+-- Password for all is: 123456
+INSERT INTO `users` (`id`, `name`, `email`, `password`, `role_id`, `active`) VALUES
+(1, 'Pedro', 'chef@test.com', '$2b$10$alqg/Pszd0DryiURfvAvZqoJ4y3gRUgPSWjqLhHKfUXdfURHRq', 1, 1),
+(2, 'Pepe', 'cliente@test.com', '$2b$10$alqg/Pszd0DryiURfvAvZqoJ4y3gRUgPSWjqLhHKfUXdfURHRq', 2, 1),
+(3, 'David', 'admin@test.com', '$2b$10$alqg/Pszd0DryiURfvAvZqoJ4y3gRUgPSWjqLhHKfUXdfURHRq', 3, 1)
+ON DUPLICATE KEY UPDATE name=name;
+
+-- Chef Profile for Pedro
+INSERT INTO `chef_profiles` (`user_id`, `specialties`, `work_zone`, `has_vehicle`, `bio`, `rating`) VALUES
+(1, 'Española, Japonesa', 'Sevilla', 1, 'Apasionado de la cocina, Autodidacta', 3)
+ON DUPLICATE KEY UPDATE bio=bio;
+
 COMMIT;

@@ -1,6 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
+import { ChefService } from '../../services/chef.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-chefs',
@@ -10,17 +11,20 @@ import { HttpClient } from '@angular/common/http';
     <div class="page-container">
       <h1>Nuestros Chefs</h1>
       <p class="subtitle">Descubre a los maestros culinarios listos para crear tu próxima experiencia inolvidable.</p>
-      
+
       <div class="chefs-grid" *ngIf="chefs.length > 0">
         <div class="chef-card" *ngFor="let chef of chefs">
           <div class="image-wrapper">
-             <img [src]="chef.image" [alt]="chef.name">
+             <img [src]="chef.image" [alt]="chef.name" onerror="this.src='https://placehold.co/400x300?text=Chef'">
           </div>
           <div class="chef-info">
             <h2>{{ chef.name }}</h2>
-            <p class="specialty">{{ chef.specialty }}</p>
+            <p class="specialty">{{ chef.specialties ? chef.specialties.join(', ') : chef.specialty }}</p>
             <div class="rating">⭐ {{ chef.rating }}</div>
-            <button class="hire-btn">Contratar</button>
+            <div class="actions">
+              <button class="hire-btn" (click)="hireChef(chef.id)">Contratar</button>
+              <button class="profile-btn" (click)="viewProfile(chef.id)">Ver Perfil</button>
+            </div>
           </div>
         </div>
       </div>
@@ -111,15 +115,35 @@ import { HttpClient } from '@angular/common/http';
       font-size: 1.2rem;
       margin-top: 3rem;
     }
+    .actions {
+      display: flex;
+      gap: 10px;
+    }
+    .profile-btn {
+      width: 100%;
+      padding: 0.8rem;
+      background-color: transparent;
+      color: #7A8A56;
+      border: 2px solid #7A8A56;
+      border-radius: 25px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .profile-btn:hover {
+      background-color: #7A8A56;
+      color: white;
+    }
   `]
 })
 export class ChefsComponent implements OnInit {
   chefs: any[] = [];
   loading = true;
-  private http = inject(HttpClient);
+  private chefService = inject(ChefService);
+  private router = inject(Router);
 
   ngOnInit() {
-    this.http.get<any[]>('/api/chefs').subscribe({
+    this.chefService.getChefs().subscribe({
       next: (data) => {
         this.chefs = data;
         this.loading = false;
@@ -129,5 +153,13 @@ export class ChefsComponent implements OnInit {
         this.loading = false;
       }
     });
+  }
+
+  viewProfile(id: number) {
+    this.router.navigate(['/chef', id]);
+  }
+
+  hireChef(id: number) {
+    this.router.navigate(['/reservations'], { queryParams: { chefId: id } });
   }
 }

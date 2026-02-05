@@ -8,6 +8,8 @@ import { AboutComponent } from './components/about/about.component';
 import { CompleteProfileComponent } from './components/complete-profile/complete-profile.component';
 import { LoginAdminComponent } from './components/loginAdmin/loginAdmin.component';
 import { AdminPanelComponent } from './components/admin-panel/admin-panel.component';
+import { ReservationComponent } from './components/reservation/reservation.component';
+import { ChefDetailComponent } from './components/chef-detail/chef-detail.component';
 
 
 export const routes: Routes = [
@@ -18,6 +20,8 @@ export const routes: Routes = [
     { path: 'admin-panel', component: AdminPanelComponent },
     { path: 'profile', component: ProfileComponent },
     { path: 'chefs', component: ChefsComponent },
+    { path: 'chef/:id', component: ChefDetailComponent },
     { path: 'about', component: AboutComponent },
-    { path: 'complete-profile', component: CompleteProfileComponent }
+    { path: 'complete-profile', component: CompleteProfileComponent },
+    { path: 'reservations', component: ReservationComponent }
 ];

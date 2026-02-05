@@ -12,6 +12,7 @@ export interface Chef {
     image: string;
 }
 
+
 export interface Review {
     id: number;
     chefId: number;
@@ -19,4 +20,14 @@ export interface Review {
     text: string;
     rating: number;
     createdAt?: Date;
+}
+
+export interface Reservation {
+    id?: number;
+    name: string;
+    street: string;
+    contact_number: string;
+    chef_id?: number;
+    date: Date;
+    created_at?: Date;
 }
