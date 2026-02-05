@@ -1,59 +1,65 @@
-# Chefpro
+# ChefPro - Plataforma de Chefs a Domicilio
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.0.1.
+¡Bienvenido! Sigue estos pasos para poner en marcha el proyecto en **menos de 5 minutos**.
 
-## Development server
+## Requisitos Previos
 
-To start a local development server, run:
+- **Node.js**: [Descargar aquí](https://nodejs.org/) (Versión 18+ recomendada)
+- **MySQL**: Servidor de base de datos en ejecución (ej. XAMPP o servicio local).
+- **Git** (Opcional, para clonar).
 
-```bash
-ng serve
-```
+---
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+## Instalación Rápida (5 Minutos)
 
-## Code scaffolding
+### 1. Base de Datos
+1. Abre tu gestor de base de datos (phpMyAdmin, Workbench, o Terminal).
+2. Importa el archivo **`chef_pro_final.sql`** ubicado en la raíz de este proyecto.
+   - *Este script creará la base de datos `chef_pro`, las tablas y configurará todo automáticamente.*
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+### 2. Backend (Servidor)
+Abre una terminal en la carpeta `Backend - NodeJS`:
 
 ```bash
-ng generate --help
+cd "Backend - NodeJS"
+npm install
+# Crea un archivo .env si no existe y configura tus credenciales de BD (ver abajo)
+npm start
 ```
 
-## Building
+**Configuración `.env` (si es necesario):**
+Crea un archivo llamado `.env` en la carpeta `Backend - NodeJS` con:
+```env
+DB_HOST=localhost
+DB_USER=root
+DB_PASSWORD=      # Tu contraseña (o déjalo vacío si usas XAMPP por defecto)
+DB_NAME=chef_pro
+PORT=3000
+```
 
-To build the project run:
+### 3. Frontend (Cliente)
+Abre una **nueva** terminal en la carpeta `Frontend - Angular`:
 
 ```bash
-ng build
+cd "Frontend - Angular"
+npm install
+ng serve -o
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+---
 
-## Running unit tests
+## ¡Listo!
+La aplicación se abrirá automáticamente en tu navegador (usualmente en `http://localhost:4200`).
 
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+- **Frontend**: http://localhost:4200
+- **Backend API**: http://localhost:3000
 
-```bash
-ng test
-```
+### Usuarios de Prueba (Roles)
+- **Chef**: Revisa la tabla `users` o crea uno nuevo.
+- **Cliente**: Registrate en la web.
+- **Admin**: Accede a `/loginAdmin`.
 
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+---
+**¿Problemas?**
+- Si el backend falla, verifica que MySQL esté corriendo y las credenciales en `.env` sean correctas.
+- Si faltan tablas, vuelve a importar `chef_pro_final.sql`.
