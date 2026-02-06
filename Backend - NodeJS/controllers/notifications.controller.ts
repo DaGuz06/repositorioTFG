@@ -1,3 +1,5 @@
+//Se terminará de perfeccionar en la siguiente entrega, no está perfeccionado.
+
 export const sendMessages = async (notification: any) => {
   const accountSid = "AC69d68dcbd0da567875b8ea5e8abf4cd8";
   const authToken = "edad43fbfa888c63174c183215df626a";

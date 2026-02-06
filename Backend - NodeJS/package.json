@@ -20,7 +20,8 @@
         "firebase": "^12.8.0",
         "google-auth-library": "^10.5.0",
         "jsonwebtoken": "^9.0.3",
-        "mysql2": "^3.16.0"
+        "mysql2": "^3.16.0",
+        "twilio": "^5.12.1"
     },
     "devDependencies": {
         "@types/bcrypt": "^6.0.0",
