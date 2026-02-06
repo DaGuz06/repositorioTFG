@@ -18,10 +18,11 @@ export const sendMessages = async (notification: any) => {
         .catch((error: any) => reject(error));
     });
   }
-  enviarMensaje("+34695671661", "Esto funciona");
+  enviarMensaje("+34", "Esto funciona"); //Colocar número de tlf al que se quiere recibir el mensaje.
 
   client.verify.v2
     .services("VA57b21076eb8c2b8d6a19f1579396c961")
     .verifications.create({ to: `whatsapp:${phoneNumber}`, channel: "sms" })
     .then((verification: any) => console.log(verification.sid));
 };
+
