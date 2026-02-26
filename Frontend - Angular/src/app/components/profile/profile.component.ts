@@ -2,13 +2,14 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
+import { ImageUrlPipe } from '../../pipes/image-url.pipe';
 import { ChefService } from '../../services/chef.service';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, RouterLink, ReactiveFormsModule],
+  imports: [CommonModule, RouterLink, ReactiveFormsModule, ImageUrlPipe],
   template: `
     <div class="profile-container" *ngIf="user">
       
@@ -21,7 +22,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
           <!-- AVATAR con botón de cámara -->
           <div class="avatar-wrapper">
             <div class="avatar-circle" (click)="fileInput.click()" title="Cambiar foto de perfil">
-              <img *ngIf="profilePicture" [src]="profilePicture" alt="Foto de perfil" class="avatar-img" />
+              <img *ngIf="profilePicture" [src]="profilePicture | imageUrl" alt="Foto de perfil" class="avatar-img" />
               <span *ngIf="!profilePicture">{{ getInitials(user.name) }}</span>
               <div class="camera-overlay">
                 <span class="camera-icon">📷</span>

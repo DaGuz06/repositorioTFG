@@ -2,6 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { ImageUrlPipe } from '../../pipes/image-url.pipe';
 import { ChefService, ChefProfile } from '../../services/chef.service';
 import { ReviewsComponent } from '../reviews/reviews.component';
 import { ReviewService } from '../../services/review.service';
@@ -10,7 +11,7 @@ import { AuthService } from '../../services/auth.service';
 @Component({
     selector: 'app-chef-detail',
     standalone: true,
-    imports: [CommonModule, RouterModule, FormsModule, ReviewsComponent],
+    imports: [CommonModule, RouterModule, FormsModule, ReviewsComponent, ImageUrlPipe],
     templateUrl: './chef-detail.component.html',
     styleUrls: ['./chef-detail.component.css']
 })

@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { ChefService } from '../../services/chef.service';
 import { Router } from '@angular/router';
+import { ImageUrlPipe } from '../../pipes/image-url.pipe';
 
 @Component({
   selector: 'app-chefs',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ImageUrlPipe],
   template: `
     <div class="page-container">
       <h1>Nuestros Chefs</h1>
@@ -16,7 +17,7 @@ import { Router } from '@angular/router';
       <div class="chefs-grid" *ngIf="chefs.length > 0">
         <div class="chef-card" *ngFor="let chef of chefs">
           <div class="image-wrapper">
-             <img [src]="chef.image" [alt]="chef.name" onerror="this.src='https://placehold.co/400x300?text=Chef'">
+             <img [src]="chef.image | imageUrl" [alt]="chef.name" onerror="this.src='https://placehold.co/400x300?text=Chef'">
           </div>
           <div class="chef-info">
             <h2>{{ chef.name }}</h2>
