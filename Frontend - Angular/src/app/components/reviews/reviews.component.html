@@ -1,0 +1,18 @@
+<section class="reviews-section">
+  <h2>Reseñas de Comensales</h2>
+  <div *ngIf="reviews.length > 0; else noReviews" class="reviews-grid">
+    <div class="review-card" *ngFor="let review of reviews">
+      <div class="review-header">
+        <img src="/profileIcon.svg" alt="User" class="avatar">
+        <h3>Usuario #{{ review.user_id }}</h3>
+      </div>
+      <p class="review-comment">"{{ review.text }}"</p>
+      <div class="review-rating">
+        <span *ngFor="let star of [1,2,3,4,5]" class="star" [class.filled]="star <= review.rating">★</span>
+      </div>
+    </div>
+  </div>
+  <ng-template #noReviews>
+    <p class="no-reviews">Aún no hay reseñas para este chef.</p>
+  </ng-template>
+</section>
