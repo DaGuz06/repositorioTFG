@@ -1,0 +1,31 @@
+/*
+Estilo del footer en conjunto
+*/
+
+.footer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0.2rem 2rem;
+    background-color: #ffffff;
+    box-shadow: 0 -2px 4px #C7A446;
+    border-radius: 10px 10px 0 0;
+}
+
+@media (max-width: 768px) {
+    .footer {
+        padding: 1rem;
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .footer-text {
+        font-size: 0.9rem;
+    }
+}
+
+.footer-text {
+    color: #333;
+    font-weight: 500;
+    font-size: 1rem;
+}

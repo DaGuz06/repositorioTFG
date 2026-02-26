@@ -1,0 +1,35 @@
+<div class="profile-container" *ngIf="chef">
+    <div class="chef-header">
+        <div class="image-wrapper">
+            <img [src]="chef.image" [alt]="chef.name" onerror="this.src='https://placehold.co/400x300?text=Chef'">
+        </div>
+        <div class="chef-info">
+            <h1>{{ chef.name }}</h1>
+            <p class="specialty">{{ chef.specialties.join(', ') }}</p>
+            <div class="rating">⭐ {{ chef.rating }}</div>
+            <p class="bio">{{ chef.bio }}</p>
+            <p class="zone"><strong>Zona de trabajo:</strong> {{ chef.work_zone }}</p>
+            <button class="reserve-btn" (click)="reserve()">Reservar</button>
+        </div>
+    </div>
+
+    <div class="menu-section">
+        <h2>Platos Disponibles</h2>
+        <div class="menu-grid" *ngIf="menus.length > 0; else noMenus">
+            <div class="menu-card" *ngFor="let menu of menus">
+                <img [src]="menu.image_url" [alt]="menu.title"
+                    onerror="this.src='https://placehold.co/300x200?text=Plato'">
+                <div class="menu-details">
+                    <h3>{{ menu.title }}</h3>
+                    <p>{{ menu.description }}</p>
+                    <span class="price">{{ menu.price }} €</span>
+                </div>
+            </div>
+        </div>
+        <ng-template #noMenus>
+            <p>Este chef aún no ha publicado platos.</p>
+        </ng-template>
+    </div>
+</div>
+
+<div *ngIf="loading" class="loading">Cargando perfil...</div>
