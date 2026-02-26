@@ -1,25 +1,23 @@
-import mysql from 'mysql2';
+import { Pool } from 'pg';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
-export const pool = mysql.createPool({
+export const pool = new Pool({
   host: process.env['DB_HOST'] || 'localhost',
-  port: Number(process.env['DB_PORT']) || 3306,
-  user: process.env['DB_USER'] || 'root',
+  port: Number(process.env['DB_PORT']) || 5432,
+  user: process.env['DB_USER'] || 'postgres',
   password: process.env['DB_PASSWORD'] || '',
   database: process.env['DB_NAME'] || 'chef_pro',
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0
 });
-
-export const promisePool = pool.promise();
 
 export const initDB = async () => {
   try {
-    console.log('Database connection initialized.');
+    await pool.query('SELECT 1');
+    console.log('✅ Database connection successful.');
   } catch (error) {
-    console.error('Error initializing database:', error);
+    console.error('❌ CRITICAL: Could not connect to the database.');
+    console.error('   Please ensure PostgreSQL is running on port 5432.');
+    console.error('   Details:', (error as any).message);
   }
 };

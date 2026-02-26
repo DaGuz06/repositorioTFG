@@ -1,8 +1,7 @@
 import { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { promisePool } from '../db';
-import { RowDataPacket, ResultSetHeader } from 'mysql2';
+import { pool } from '../db';
 import { OAuth2Client } from 'google-auth-library';
 
 const SECRET_KEY = process.env['JWT_SECRET'] || 'super_secret_key';
@@ -16,7 +15,7 @@ export const login = async (req: Request, res: Response) => {
     }
 
     try {
-        const [rows] = await promisePool.query<RowDataPacket[]>('SELECT * FROM users WHERE email = ?', [email]);
+        const { rows } = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
 
         if (rows.length === 0) {
             res.status(401).json({ success: false, message: 'Invalid credentials' });
@@ -40,7 +39,8 @@ export const login = async (req: Request, res: Response) => {
                 id: user.id,
                 email: user.email,
                 name: user.name,
-                role_id: user.role_id
+                role_id: user.role_id,
+                profile_picture: user.profile_picture || null
             }
         });
 
@@ -59,8 +59,7 @@ export const register = async (req: Request, res: Response) => {
     }
 
     try {
-        // Check if user exists
-        const [existingUsers] = await promisePool.query<RowDataPacket[]>('SELECT id FROM users WHERE email = ?', [email]);
+        const { rows: existingUsers } = await pool.query('SELECT id FROM users WHERE email = $1', [email]);
 
         if (existingUsers.length > 0) {
             res.status(400).json({ success: false, message: 'User already exists' });
@@ -69,19 +68,15 @@ export const register = async (req: Request, res: Response) => {
 
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Default values: active = 1, created_at = NOW() (handled by DB default usually, but let's be safe if schema varies)
-        // Adjust query based on if DB has auto defaults. Assuming defaults or we pass them.
-        // User schema: id, email, password, name, phone, role_id, active, created_at
-
-        const [result] = await promisePool.query<ResultSetHeader>(
-            'INSERT INTO users (name, email, password, role_id, active, created_at) VALUES (?, ?, ?, ?, 1, NOW())',
+        const { rows } = await pool.query(
+            'INSERT INTO users (name, email, password, role_id, active, created_at) VALUES ($1, $2, $3, $4, 1, NOW()) RETURNING id',
             [name, email, hashedPassword, role_id]
         );
 
         res.status(201).json({
             success: true,
             message: 'User registered successfully',
-            userId: result.insertId
+            userId: rows[0].id
         });
 
     } catch (error) {
@@ -103,7 +98,6 @@ export const googleLogin = async (req: Request, res: Response) => {
     try {
         const ticket = await client.verifyIdToken({
             idToken: token,
-            // audience: 'YOUR_CLIENT_ID' // Optional: Specify if you want to verify audience
         });
         const payload = ticket.getPayload();
 
@@ -113,40 +107,33 @@ export const googleLogin = async (req: Request, res: Response) => {
         }
 
         const email = payload.email;
-        // Try to get the best available name from Google payload
         const name = payload.name || payload.given_name || email.split('@')[0];
 
-        // Check if user exists
-        const [rows] = await promisePool.query<RowDataPacket[]>('SELECT * FROM users WHERE email = ?', [email]);
+        const { rows } = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
 
         let user;
 
         if (rows.length === 0) {
-            // Register new user
-            // Generate a random password (user won't use it, but DB might require it)
             const randomPassword = Math.random().toString(36).slice(-8);
             const hashedPassword = await bcrypt.hash(randomPassword, 10);
-            const defaultRoleId = 2; // Assuming 2 is 'client' or standard user
+            const defaultRoleId = 2;
 
-            const [result] = await promisePool.query<ResultSetHeader>(
-                'INSERT INTO users (name, email, password, role_id, active, created_at) VALUES (?, ?, ?, ?, 1, NOW())',
+            const { rows: newRows } = await pool.query(
+                'INSERT INTO users (name, email, password, role_id, active, created_at) VALUES ($1, $2, $3, $4, 1, NOW()) RETURNING id',
                 [name, email, hashedPassword, defaultRoleId]
             );
 
             user = {
-                id: result.insertId,
+                id: newRows[0].id,
                 email: email,
                 name: name,
-                role_id: defaultRoleId
+                role_id: defaultRoleId,
+                profile_picture: null
             };
         } else {
             user = rows[0];
-            // Update name if it was previously 'Google User' or empty
             if (!user.name || user.name === 'Google User') {
-                await promisePool.query(
-                    'UPDATE users SET name = ? WHERE id = ?',
-                    [name, user.id]
-                );
+                await pool.query('UPDATE users SET name = $1 WHERE id = $2', [name, user.id]);
                 user.name = name;
             }
         }
@@ -160,7 +147,8 @@ export const googleLogin = async (req: Request, res: Response) => {
                 id: user.id,
                 email: user.email,
                 name: user.name,
-                role_id: user.role_id
+                role_id: user.role_id,
+                profile_picture: user.profile_picture || null
             }
         });
 

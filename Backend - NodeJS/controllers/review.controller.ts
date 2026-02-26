@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
-import { promisePool } from '../db';
-import { RowDataPacket, ResultSetHeader } from 'mysql2';
+import { pool } from '../db';
 
 export const getReviews = async (req: Request, res: Response) => {
     const queryChefId = req.query['chefId'];
@@ -10,14 +9,13 @@ export const getReviews = async (req: Request, res: Response) => {
         const params: any[] = [];
 
         if (queryChefId) {
-            query += ' WHERE chef_id = ?';
+            query += ' WHERE chef_id = $1';
             params.push(parseInt(queryChefId as string));
         }
 
-        // Add ordering
         query += ' ORDER BY created_at DESC';
 
-        const [rows] = await promisePool.query<RowDataPacket[]>(query, params);
+        const { rows } = await pool.query(query, params);
         res.json(rows);
     } catch (error) {
         console.error('Error fetching reviews:', error);
@@ -33,14 +31,34 @@ export const addReview = async (req: Request, res: Response) => {
         return;
     }
 
+    const client = await pool.connect();
     try {
-        const [result] = await promisePool.query<ResultSetHeader>(
-            'INSERT INTO reviews (chef_id, user_id, text, rating) VALUES (?, ?, ?, ?)',
+        await client.query('BEGIN');
+
+        // 1. Insert the new review
+        const { rows } = await client.query(
+            'INSERT INTO reviews (chef_id, user_id, text, rating) VALUES ($1, $2, $3, $4) RETURNING id',
             [chefId, userId, text, rating]
         );
 
+        // 2. Calculate the new average rating for the chef
+        const { rows: avgRows } = await client.query(
+            'SELECT AVG(rating) as "avgRating" FROM reviews WHERE chef_id = $1',
+            [chefId]
+        );
+
+        const newAvgRating = avgRows[0]?.avgRating || rating;
+
+        // 3. Update the chef's profile with the new average rating
+        await client.query(
+            'UPDATE chef_profiles SET rating = $1 WHERE user_id = $2',
+            [newAvgRating, chefId]
+        );
+
+        await client.query('COMMIT');
+
         const newReview = {
-            id: result.insertId,
+            id: rows[0].id,
             chefId,
             userId,
             text,
@@ -50,7 +68,10 @@ export const addReview = async (req: Request, res: Response) => {
 
         res.status(201).json(newReview);
     } catch (error) {
+        await client.query('ROLLBACK');
         console.error('Error adding review:', error);
         res.status(500).json({ message: 'Error adding review' });
+    } finally {
+        client.release();
     }
 };

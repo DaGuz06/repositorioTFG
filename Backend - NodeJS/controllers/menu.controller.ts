@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
-import { promisePool } from '../db';
-import { RowDataPacket, ResultSetHeader } from 'mysql2';
+import { pool } from '../db';
 
 export const getMenus = async (req: Request, res: Response) => {
     const chefId = req.query['chefId'];
@@ -10,13 +9,13 @@ export const getMenus = async (req: Request, res: Response) => {
         const params: any[] = [];
 
         if (chefId) {
-            query += ' WHERE chef_id = ?';
+            query += ' WHERE chef_id = $1';
             params.push(parseInt(chefId as string));
         }
 
         query += ' ORDER BY created_at DESC';
 
-        const [rows] = await promisePool.query<RowDataPacket[]>(query, params);
+        const { rows } = await pool.query(query, params);
         res.json(rows);
     } catch (error) {
         console.error('Error fetching menus:', error);
@@ -33,13 +32,13 @@ export const createMenu = async (req: Request, res: Response) => {
     }
 
     try {
-        const [result] = await promisePool.query<ResultSetHeader>(
-            'INSERT INTO menus (chef_id, title, description, price, image_url, created_at) VALUES (?, ?, ?, ?, ?, NOW())',
+        const { rows } = await pool.query(
+            'INSERT INTO menus (chef_id, title, description, price, image_url, created_at) VALUES ($1, $2, $3, $4, $5, NOW()) RETURNING id',
             [chef_id, title, description || '', price, image_url || '']
         );
 
         res.status(201).json({
-            id: result.insertId,
+            id: rows[0].id,
             chef_id,
             title,
             description,
@@ -57,7 +56,7 @@ export const deleteMenu = async (req: Request, res: Response) => {
     const id = req.params['id'];
 
     try {
-        await promisePool.query('DELETE FROM menus WHERE id = ?', [id]);
+        await pool.query('DELETE FROM menus WHERE id = $1', [id]);
         res.json({ message: 'Menu deleted successfully', success: true });
     } catch (error) {
         console.error('Error deleting menu:', error);

@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, Input, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ReviewService, Review } from '../../services/review.service';
 
 @Component({
   selector: 'app-reviews',
@@ -8,10 +9,22 @@ import { CommonModule } from '@angular/common';
   templateUrl: './reviews.component.html',
   styleUrls: ['./reviews.component.css']
 })
-export class ReviewsComponent {
-  reviews = [
-    { name: 'Juan Pérez', comment: '¡Increíble servicio! Los chefs son de primera.', rating: 5, avatar: '/profileIcon.svg' },
-    { name: 'Maria Garcia', comment: 'La comida estaba deliciosa. Repetiré seguro.', rating: 4, avatar: '/profileIcon.svg' },
-    { name: 'Carlos López', comment: 'Una experiencia única.', rating: 5, avatar: '/profileIcon.svg' }
-  ];
+export class ReviewsComponent implements OnInit {
+  @Input() chefId!: number;
+  private reviewService = inject(ReviewService);
+
+  reviews: Review[] = [];
+
+  ngOnInit() {
+    if (this.chefId) {
+      this.loadReviews();
+    }
+  }
+
+  loadReviews() {
+    this.reviewService.getReviewsByChef(this.chefId).subscribe({
+      next: (data) => this.reviews = data,
+      error: (err) => console.error('Error loading reviews:', err)
+    });
+  }
 }

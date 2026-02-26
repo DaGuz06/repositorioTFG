@@ -30,6 +30,25 @@
             <p>Este chef aún no ha publicado platos.</p>
         </ng-template>
     </div>
+
+    <div class="review-form-section">
+        <h2>Deja tu reseña</h2>
+        <div class="form-container">
+            <div class="rating-input">
+                <label>Calificación:</label>
+                <div class="stars-selector">
+                    <span *ngFor="let star of [1,2,3,4,5]" (click)="newReviewRating = star"
+                        [class.active]="star <= newReviewRating">★</span>
+                </div>
+            </div>
+            <textarea [(ngModel)]="newReviewText" placeholder="Cuéntanos tu experiencia..."></textarea>
+            <button (click)="submitReview()" [disabled]="isSubmittingReview">
+                {{ isSubmittingReview ? 'Enviando...' : 'Enviar Reseña' }}
+            </button>
+        </div>
+    </div>
+
+    <app-reviews *ngIf="chef.id" [chefId]="chef.id"></app-reviews>
 </div>
 
 <div *ngIf="loading" class="loading">Cargando perfil...</div>

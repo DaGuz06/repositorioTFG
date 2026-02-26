@@ -1,6 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
 import { ChefService } from '../../services/chef.service';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -17,9 +17,21 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
           <div class="header-content">
               <h1>{{ user.name }}</h1>
           </div>
-          <div class="avatar-circle">
-              <!-- Placeholder avatar logic -->
-              <span>{{ getInitials(user.name) }}</span>
+
+          <!-- AVATAR con botón de cámara -->
+          <div class="avatar-wrapper">
+            <div class="avatar-circle" (click)="fileInput.click()" title="Cambiar foto de perfil">
+              <img *ngIf="profilePicture" [src]="profilePicture" alt="Foto de perfil" class="avatar-img" />
+              <span *ngIf="!profilePicture">{{ getInitials(user.name) }}</span>
+              <div class="camera-overlay">
+                <span class="camera-icon">📷</span>
+              </div>
+            </div>
+            <input #fileInput type="file" accept="image/*" style="display:none"
+                   (change)="onFileSelected($event)" />
+            <div class="upload-status" *ngIf="uploadStatus">
+              {{ uploadStatus }}
+            </div>
           </div>
       </div>
 
@@ -102,7 +114,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
       margin-bottom: 2.5rem;
       border-radius: 15px;
       box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-      border-left: 5px solid #C7A446; /* Gold accent */
+      border-left: 5px solid #C7A446;
     }
     .header-section h1 {
       margin: 0;
@@ -111,10 +123,18 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
       text-transform: uppercase;
       letter-spacing: 1px;
     }
+
+    /* AVATAR */
+    .avatar-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+    }
     .avatar-circle {
-      width: 70px;
-      height: 70px;
-      background-color: #7A8A56; /* Green */
+      width: 80px;
+      height: 80px;
+      background-color: #7A8A56;
       color: white;
       border-radius: 50%;
       display: flex;
@@ -123,7 +143,43 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
       font-weight: 600;
       font-size: 1.8rem;
       box-shadow: 0 4px 10px rgba(122, 138, 86, 0.3);
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s ease;
     }
+    .avatar-circle:hover {
+      transform: scale(1.05);
+    }
+    .avatar-circle:hover .camera-overlay {
+      opacity: 1;
+    }
+    .avatar-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+    }
+    .camera-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+    .camera-icon { font-size: 1.5rem; }
+    .upload-status {
+      font-size: 0.75rem;
+      color: #7A8A56;
+      font-weight: 600;
+      text-align: center;
+      animation: fadeIn 0.3s ease;
+    }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
     /* SECTION BOXES */
     .section-box {
@@ -149,9 +205,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
       border-left: 4px solid #C7A446;
       transition: transform 0.2s ease;
     }
-    .review-item:hover {
-        transform: translateX(5px);
-    }
+    .review-item:hover { transform: translateX(5px); }
     .review-header {
         display: flex;
         justify-content: space-between;
@@ -163,7 +217,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
         margin: 0;
         line-height: 1.5;
     }
-    .stars { color: #C7A446; } /* Gold stars */
+    .stars { color: #C7A446; }
 
     /* MENUS GRID */
     .menus-grid {
@@ -189,124 +243,58 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
         box-shadow: 0 8px 20px rgba(0,0,0,0.08);
         border-color: #C7A446;
     }
-    .menu-card h3 { 
-        margin: 0 0 0.8rem 0; 
-        font-size: 1.3rem; 
-        color: #333;
-    }
-    .menu-desc {
-        color: #666;
-        font-size: 0.95rem;
-        flex-grow: 1;
-        margin-bottom: 1rem;
-        line-height: 1.4;
-    }
-    .price { 
-        font-weight: 700; 
-        color: #7A8A56; /* Green price */
-        font-size: 1.3rem;
-        align-self: flex-end;
-    }
+    .menu-card h3 { margin: 0 0 0.8rem 0; font-size: 1.3rem; color: #333; }
+    .menu-desc { color: #666; font-size: 0.95rem; flex-grow: 1; margin-bottom: 1rem; line-height: 1.4; }
+    .price { font-weight: 700; color: #7A8A56; font-size: 1.3rem; align-self: flex-end; }
     .delete-btn {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        background: none;
-        border: none;
-        cursor: pointer;
-        opacity: 0.3;
-        transition: opacity 0.2s;
-        font-size: 1.1rem;
+        position: absolute; top: 10px; right: 10px;
+        background: none; border: none; cursor: pointer;
+        opacity: 0.3; transition: opacity 0.2s; font-size: 1.1rem;
     }
     .delete-btn:hover { opacity: 1; color: #dc3545; }
-
     .add-card {
-      border: 2px dashed #C7A446;
-      background: #fffdf5; /* Light gold tint */
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      text-align: center;
-      color: #C7A446;
+      border: 2px dashed #C7A446; background: #fffdf5;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; text-align: center; color: #C7A446;
     }
-    .add-card:hover { 
-        background: #fff8e1; 
-        transform: scale(1.02);
-    }
+    .add-card:hover { background: #fff8e1; transform: scale(1.02); }
     .add-card h3 { color: #C7A446; margin-bottom: 0.5rem; }
     .add-card p { color: #7A8A56; font-size: 0.9rem; }
 
     /* FORM */
     .add-menu-form {
-        background: white;
-        padding: 2.5rem;
-        border-radius: 15px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        margin-bottom: 3rem;
-        border-top: 5px solid #C7A446;
-        animation: slideDown 0.3s ease-out;
+        background: white; padding: 2.5rem; border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1); margin-bottom: 3rem;
+        border-top: 5px solid #C7A446; animation: slideDown 0.3s ease-out;
     }
     @keyframes slideDown {
         from { opacity: 0; transform: translateY(-10px); }
         to { opacity: 1; transform: translateY(0); }
     }
-    .add-menu-form h3 {
-        margin-top: 0;
-        color: #333;
-        margin-bottom: 1.5rem;
-    }
+    .add-menu-form h3 { margin-top: 0; color: #333; margin-bottom: 1.5rem; }
     .add-menu-form input {
-        display: block;
-        width: 100%;
-        margin-bottom: 1.2rem;
-        padding: 1rem;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        transition: border-color 0.3s;
+        display: block; width: 100%; margin-bottom: 1.2rem;
+        padding: 1rem; border: 1px solid #ddd; border-radius: 8px; transition: border-color 0.3s;
     }
-    .add-menu-form input:focus {
-        border-color: #C7A446;
-        outline: none;
-    }
+    .add-menu-form input:focus { border-color: #C7A446; outline: none; }
     .form-actions { display: flex; gap: 1rem; justify-content: flex-end; }
     .form-actions button {
-        padding: 0.8rem 2rem;
-        cursor: pointer;
-        border-radius: 25px;
-        font-weight: 600;
-        border: none;
-        transition: background 0.3s;
+        padding: 0.8rem 2rem; cursor: pointer; border-radius: 25px;
+        font-weight: 600; border: none; transition: background 0.3s;
     }
-    .form-actions button[type="button"] {
-        background: #f0f0f0;
-        color: #666;
-    }
+    .form-actions button[type="button"] { background: #f0f0f0; color: #666; }
     .form-actions button[type="button"]:hover { background: #e0e0e0; }
-    
-    .form-actions button[type="submit"] {
-        background: #C7A446;
-        color: white;
-    }
-    .form-actions button[type="submit"]:hover:not(:disabled) {
-        background: #b08d35;
-    }
+    .form-actions button[type="submit"] { background: #C7A446; color: white; }
+    .form-actions button[type="submit"]:hover:not(:disabled) { background: #b08d35; }
 
     .edit-profile-link {
-        background: #333;
-        color: white;
-        border: none;
-        padding: 0.8rem 2rem;
-        border-radius: 25px;
-        cursor: pointer;
-        font-size: 0.9rem;
-        transition: background 0.3s;
-        text-decoration: none;
-        display: inline-block;
+        background: #333; color: white; border: none;
+        padding: 0.8rem 2rem; border-radius: 25px; cursor: pointer;
+        font-size: 0.9rem; transition: background 0.3s;
+        text-decoration: none; display: inline-block;
     }
     .edit-profile-link:hover { background: #555; }
     .actions { text-align: right; margin-top: -1rem; margin-bottom: 3rem; }
-    
     .loading-msg, .empty-msg { text-align: center; color: #999; font-style: italic; padding: 2rem;}
   `]
 })
@@ -317,9 +305,12 @@ export class ProfileComponent implements OnInit {
   menus: any[] = [];
   isOwner = false;
   showAddMenuForm = false;
+  profilePicture: string | null = null;
+  uploadStatus: string = '';
 
   private chefService = inject(ChefService);
   private fb = inject(FormBuilder);
+  private http = inject(HttpClient);
 
   menuForm = this.fb.group({
     title: ['', Validators.required],
@@ -331,9 +322,9 @@ export class ProfileComponent implements OnInit {
     const userStr = localStorage.getItem('chefpro_user');
     if (userStr) {
       this.user = JSON.parse(userStr);
-      this.isOwner = this.user.role_id === 1; // Assuming 1 is Chef
+      this.isOwner = this.user.role_id === 1;
+      this.profilePicture = this.user.profile_picture || null;
 
-      // Load Profile Data
       if (this.isOwner) {
         this.loadChefData(this.user.id);
       }
@@ -346,6 +337,50 @@ export class ProfileComponent implements OnInit {
     this.chefService.getChefMenus(chefId).subscribe(data => this.menus = data);
   }
 
+  onFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+
+    const file = input.files[0];
+    if (!file.type.startsWith('image/')) {
+      this.uploadStatus = '❌ Solo se permiten imágenes';
+      return;
+    }
+
+    // Preview inmediato
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      this.profilePicture = e.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+
+    // Subir al backend
+    this.uploadStatus = '⏳ Subiendo...';
+    const formData = new FormData();
+    formData.append('photo', file);
+
+    const token = localStorage.getItem('chefpro_token');
+    const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
+
+    this.http.post<any>('/api/upload/profile-picture', formData, { headers })
+      .subscribe({
+        next: (res) => {
+          if (res.success) {
+            this.profilePicture = res.profilePicture;
+            this.uploadStatus = '✅ Foto actualizada';
+            const updatedUser = { ...this.user, profile_picture: res.profilePicture };
+            localStorage.setItem('chefpro_user', JSON.stringify(updatedUser));
+            this.user = updatedUser;
+            setTimeout(() => this.uploadStatus = '', 3000);
+          }
+        },
+        error: () => {
+          this.uploadStatus = '❌ Error al subir la foto';
+          setTimeout(() => this.uploadStatus = '', 3000);
+        }
+      });
+  }
+
   onAddMenu() {
     if (this.menuForm.invalid) return;
 
@@ -356,7 +391,7 @@ export class ProfileComponent implements OnInit {
 
     this.chefService.addMenu(newMenu).subscribe({
       next: () => {
-        this.loadChefData(this.user.id); // Reload menus
+        this.loadChefData(this.user.id);
         this.showAddMenuForm = false;
         this.menuForm.reset();
       },

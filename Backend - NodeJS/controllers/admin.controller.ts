@@ -1,11 +1,10 @@
 import { Request, Response } from 'express';
-import { promisePool } from '../db';
-import { RowDataPacket, ResultSetHeader } from 'mysql2';
+import { pool } from '../db';
 
 // Get all users
 export const getAllUsers = async (req: Request, res: Response) => {
     try {
-        const [rows] = await promisePool.query<RowDataPacket[]>(
+        const { rows } = await pool.query(
             'SELECT id, name, email, role_id, active, created_at FROM users ORDER BY created_at DESC'
         );
         res.json({ success: true, users: rows });
@@ -18,7 +17,7 @@ export const getAllUsers = async (req: Request, res: Response) => {
 // Get all chefs with profile info
 export const getAllChefs = async (req: Request, res: Response) => {
     try {
-        const [rows] = await promisePool.query<RowDataPacket[]>(`
+        const { rows } = await pool.query(`
             SELECT u.id as user_id, u.name, u.email, 
                    cp.specialties, cp.work_zone, cp.rating
             FROM users u
@@ -36,7 +35,7 @@ export const getAllChefs = async (req: Request, res: Response) => {
 // Get all reviews with user and chef names
 export const getAllReviews = async (req: Request, res: Response) => {
     try {
-        const [rows] = await promisePool.query<RowDataPacket[]>(`
+        const { rows } = await pool.query(`
             SELECT r.id, r.chef_id, r.user_id, r.text, r.rating, r.created_at,
                    u1.name as chef_name, u2.name as user_name
             FROM reviews r
@@ -62,10 +61,7 @@ export const updateUserStatus = async (req: Request, res: Response) => {
     }
 
     try {
-        await promisePool.query(
-            'UPDATE users SET active = ? WHERE id = ?',
-            [active, userId]
-        );
+        await pool.query('UPDATE users SET active = $1 WHERE id = $2', [active, userId]);
         res.json({ success: true, message: 'User status updated successfully' });
     } catch (error) {
         console.error('Error updating user status:', error);
@@ -78,18 +74,14 @@ export const deleteUser = async (req: Request, res: Response) => {
     const { userId } = req.params;
 
     try {
-        // Check if user is admin
-        const [user] = await promisePool.query<RowDataPacket[]>(
-            'SELECT role_id FROM users WHERE id = ?',
-            [userId]
-        );
+        const { rows: user } = await pool.query('SELECT role_id FROM users WHERE id = $1', [userId]);
 
         if (user.length > 0 && user[0].role_id === 3) {
             res.status(403).json({ success: false, message: 'Cannot delete admin users' });
             return;
         }
 
-        await promisePool.query('DELETE FROM users WHERE id = ?', [userId]);
+        await pool.query('DELETE FROM users WHERE id = $1', [userId]);
         res.json({ success: true, message: 'User deleted successfully' });
     } catch (error) {
         console.error('Error deleting user:', error);
@@ -102,7 +94,7 @@ export const deleteReview = async (req: Request, res: Response) => {
     const { reviewId } = req.params;
 
     try {
-        await promisePool.query('DELETE FROM reviews WHERE id = ?', [reviewId]);
+        await pool.query('DELETE FROM reviews WHERE id = $1', [reviewId]);
         res.json({ success: true, message: 'Review deleted successfully' });
     } catch (error) {
         console.error('Error deleting review:', error);

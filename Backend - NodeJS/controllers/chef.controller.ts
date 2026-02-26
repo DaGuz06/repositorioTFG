@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
-import { promisePool } from '../db';
-import { RowDataPacket } from 'mysql2';
+import { pool } from '../db';
 
 // Helper to map DB result to Chef interface
 const mapChef = (row: any) => ({
@@ -23,7 +22,7 @@ export const getChefs = async (req: Request, res: Response) => {
             LEFT JOIN chef_profiles cp ON u.id = cp.user_id
             WHERE u.role_id = 1
         `;
-        const [rows] = await promisePool.query<RowDataPacket[]>(query);
+        const { rows } = await pool.query(query);
         const chefs = rows.map(mapChef);
         res.json(chefs);
     } catch (error) {
@@ -39,9 +38,9 @@ export const getChefById = async (req: Request, res: Response) => {
             SELECT u.id, u.name, u.email, cp.specialties, cp.work_zone, cp.has_vehicle, cp.bio, cp.rating 
             FROM users u
             LEFT JOIN chef_profiles cp ON u.id = cp.user_id
-            WHERE u.id = ? AND u.role_id = 1
+            WHERE u.id = $1 AND u.role_id = 1
         `;
-        const [rows] = await promisePool.query<RowDataPacket[]>(query, [id]);
+        const { rows } = await pool.query(query, [id]);
 
         if (rows.length > 0) {
             res.json(mapChef(rows[0]));
@@ -64,15 +63,15 @@ export const createProfile = async (req: Request, res: Response) => {
     try {
         const query = `
             INSERT INTO chef_profiles (user_id, specialties, work_zone, has_vehicle, bio)
-            VALUES (?, ?, ?, ?, ?)
-            ON DUPLICATE KEY UPDATE
-            specialties = VALUES(specialties),
-            work_zone = VALUES(work_zone),
-            has_vehicle = VALUES(has_vehicle),
-            bio = VALUES(bio)
+            VALUES ($1, $2, $3, $4, $5)
+            ON CONFLICT (user_id) DO UPDATE SET
+            specialties = EXCLUDED.specialties,
+            work_zone = EXCLUDED.work_zone,
+            has_vehicle = EXCLUDED.has_vehicle,
+            bio = EXCLUDED.bio
         `;
 
-        await promisePool.query(query, [user_id, specialties, work_zone, has_vehicle ? 1 : 0, bio]);
+        await pool.query(query, [user_id, specialties, work_zone, has_vehicle ? 1 : 0, bio]);
         res.json({ message: 'Profile updated successfully', success: true });
     } catch (error) {
         console.error('Error updating profile:', error);

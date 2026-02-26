@@ -1,98 +1,86 @@
-CREATE DATABASE IF NOT EXISTS `chef_pro`;
-USE `chef_pro`;
+-- PostgreSQL Schema for ChefPro
+-- Run: psql -U postgres -d chef_pro -f chef_pro_final.sql
 
-SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-START TRANSACTION;
-SET time_zone = "+00:00";
+CREATE TABLE IF NOT EXISTS roles (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(50) NOT NULL
+);
 
--- 1. Users Table
-CREATE TABLE IF NOT EXISTS `users` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) NOT NULL,
-  `email` varchar(255) NOT NULL UNIQUE,
-  `password` varchar(255) NOT NULL,
-  `phone` varchar(20) DEFAULT NULL,
-  `role_id` int(11) NOT NULL,
-  `active` tinyint(4) DEFAULT 1,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- 2. Roles Table
-CREATE TABLE IF NOT EXISTS `roles` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(50) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-INSERT INTO `roles` (`id`, `name`) VALUES
+INSERT INTO roles (id, name) VALUES
 (1, 'Chef'),
 (2, 'Comensal'),
 (3, 'Admin')
-ON DUPLICATE KEY UPDATE name=name;
+ON CONFLICT (id) DO NOTHING;
 
--- 3. Chef Profiles Table
-CREATE TABLE IF NOT EXISTS `chef_profiles` (
-  `user_id` bigint(20) NOT NULL,
-  `specialties` text DEFAULT NULL,
-  `work_zone` varchar(255) DEFAULT NULL,
-  `has_vehicle` tinyint(4) DEFAULT 0,
-  `bio` text DEFAULT NULL,
-  `rating` decimal(3,1) DEFAULT 5.0,
-  PRIMARY KEY (`user_id`),
-  FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+-- Sync sequence after explicit id inserts
+SELECT setval('roles_id_seq', (SELECT COALESCE(MAX(id), 0) FROM roles));
 
--- 4. Menus Table
-CREATE TABLE IF NOT EXISTS `menus` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `chef_id` bigint(20) NOT NULL,
-  `title` varchar(255) NOT NULL,
-  `description` text DEFAULT NULL,
-  `price` decimal(10,2) NOT NULL,
-  `image_url` varchar(255) DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  PRIMARY KEY (`id`),
-  FOREIGN KEY (`chef_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+CREATE TABLE IF NOT EXISTS users (
+  id BIGSERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  email VARCHAR(255) NOT NULL UNIQUE,
+  password VARCHAR(255) NOT NULL,
+  phone VARCHAR(20) DEFAULT NULL,
+  profile_picture VARCHAR(255) DEFAULT NULL,
+  role_id INTEGER NOT NULL,
+  active SMALLINT DEFAULT 1,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
 
--- 5. Reviews Table
-CREATE TABLE IF NOT EXISTS `reviews` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `chef_id` bigint(20) NOT NULL,
-  `user_id` bigint(20) NOT NULL,
-  `text` text DEFAULT NULL,
-  `rating` int(11) NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  PRIMARY KEY (`id`),
-  FOREIGN KEY (`chef_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
-  FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+CREATE TABLE IF NOT EXISTS chef_profiles (
+  user_id BIGINT NOT NULL PRIMARY KEY,
+  specialties TEXT DEFAULT NULL,
+  work_zone VARCHAR(255) DEFAULT NULL,
+  has_vehicle SMALLINT DEFAULT 0,
+  bio TEXT DEFAULT NULL,
+  rating DECIMAL(3,1) DEFAULT 5.0,
+  FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+);
 
--- 6. Reservations Table (Replaces Bookings)
-CREATE TABLE IF NOT EXISTS `reservations` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) NOT NULL,
-  `street` varchar(255) NOT NULL,
-  `contact_number` varchar(20) NOT NULL,
-  `chef_id` bigint(20) DEFAULT NULL,
-  `date` datetime NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  PRIMARY KEY (`id`),
-  FOREIGN KEY (`chef_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+CREATE TABLE IF NOT EXISTS menus (
+  id BIGSERIAL PRIMARY KEY,
+  chef_id BIGINT NOT NULL,
+  title VARCHAR(255) NOT NULL,
+  description TEXT DEFAULT NULL,
+  price DECIMAL(10,2) NOT NULL,
+  image_url VARCHAR(255) DEFAULT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (chef_id) REFERENCES users (id) ON DELETE CASCADE
+);
 
--- 7. Test Data (Usuarios de Prueba)
--- Password for all is: 123456
-INSERT INTO `users` (`id`, `name`, `email`, `password`, `role_id`, `active`) VALUES
+CREATE TABLE IF NOT EXISTS reviews (
+  id BIGSERIAL PRIMARY KEY,
+  chef_id BIGINT NOT NULL,
+  user_id BIGINT NOT NULL,
+  text TEXT DEFAULT NULL,
+  rating INTEGER NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (chef_id) REFERENCES users (id) ON DELETE CASCADE,
+  FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS reservations (
+  id BIGSERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  street VARCHAR(255) NOT NULL,
+  contact_number VARCHAR(20) NOT NULL,
+  chef_id BIGINT DEFAULT NULL,
+  date TIMESTAMP NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (chef_id) REFERENCES users (id) ON DELETE SET NULL
+);
+
+-- Test Data (Password: 123456)
+INSERT INTO users (id, name, email, password, role_id, active) VALUES
 (1, 'Pedro', 'chef@test.com', '$2b$10$alqg/Pszd0DryiURfvAvZqoJ4y3gRUgPSWjqLhHKfUXdfURHRq', 1, 1),
 (2, 'Pepe', 'cliente@test.com', '$2b$10$alqg/Pszd0DryiURfvAvZqoJ4y3gRUgPSWjqLhHKfUXdfURHRq', 2, 1),
 (3, 'David', 'admin@test.com', '$2b$10$alqg/Pszd0DryiURfvAvZqoJ4y3gRUgPSWjqLhHKfUXdfURHRq', 3, 1)
-ON DUPLICATE KEY UPDATE name=name;
+ON CONFLICT (id) DO NOTHING;
+
+-- Sync sequence after explicit id inserts
+SELECT setval('users_id_seq', (SELECT COALESCE(MAX(id), 0) FROM users));
 
 -- Chef Profile for Pedro
-INSERT INTO `chef_profiles` (`user_id`, `specialties`, `work_zone`, `has_vehicle`, `bio`, `rating`) VALUES
+INSERT INTO chef_profiles (user_id, specialties, work_zone, has_vehicle, bio, rating) VALUES
 (1, 'Española, Japonesa', 'Sevilla', 1, 'Apasionado de la cocina, Autodidacta', 3)
-ON DUPLICATE KEY UPDATE bio=bio;
-
-COMMIT;
+ON CONFLICT (user_id) DO NOTHING;

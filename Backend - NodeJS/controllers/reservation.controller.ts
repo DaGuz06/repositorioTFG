@@ -1,7 +1,6 @@
 import { Request, Response } from 'express';
-import { promisePool } from '../db';
+import { pool } from '../db';
 import { Reservation } from '../models/interfaces';
-import { ResultSetHeader } from 'mysql2';
 
 export const createReservation = async (req: Request, res: Response) => {
     try {
@@ -11,13 +10,13 @@ export const createReservation = async (req: Request, res: Response) => {
             return res.status(400).json({ message: 'Missing required fields' });
         }
 
-        const [result] = await promisePool.query<ResultSetHeader>(
-            'INSERT INTO reservations (name, street, contact_number, chef_id, date) VALUES (?, ?, ?, ?, ?)',
+        const { rows } = await pool.query(
+            'INSERT INTO reservations (name, street, contact_number, chef_id, date) VALUES ($1, $2, $3, $4, $5) RETURNING id',
             [name, street, contact_number, chef_id || null, new Date(date)]
         );
 
         const newReservation: Reservation = {
-            id: result.insertId,
+            id: rows[0].id,
             name,
             street,
             contact_number,

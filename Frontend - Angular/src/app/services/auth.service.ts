@@ -20,6 +20,17 @@ export class AuthService {
     this.isLoggedInSubject.next(this.hasToken());
   }
 
+  getCurrentUser() {
+    const user = localStorage.getItem('chefpro_user');
+    if (!user) return null;
+    try {
+      return JSON.parse(user);
+    } catch (e) {
+      console.error('Error parsing user from localStorage', e);
+      return null;
+    }
+  }
+
   logout() {
     localStorage.removeItem('chefpro_token');
     localStorage.removeItem('chefpro_user');
