@@ -11,13 +11,13 @@ const mapChef = (row: any) => ({
     has_vehicle: !!row.has_vehicle,
     bio: row.bio || '',
     rating: row.rating || 5.0,
-    image: `https://placehold.co/400x300?text=${encodeURIComponent(row.name)}`
+    image: row.profile_picture || `https://placehold.co/400x300?text=${encodeURIComponent(row.name)}`
 });
 
 export const getChefs = async (req: Request, res: Response) => {
     try {
         const query = `
-            SELECT u.id, u.name, u.email, cp.specialties, cp.work_zone, cp.has_vehicle, cp.bio, cp.rating 
+            SELECT u.id, u.name, u.email, u.profile_picture, cp.specialties, cp.work_zone, cp.has_vehicle, cp.bio, cp.rating 
             FROM users u
             LEFT JOIN chef_profiles cp ON u.id = cp.user_id
             WHERE u.role_id = 1
@@ -35,7 +35,7 @@ export const getChefById = async (req: Request, res: Response) => {
     const id = parseInt(req.params['id']);
     try {
         const query = `
-            SELECT u.id, u.name, u.email, cp.specialties, cp.work_zone, cp.has_vehicle, cp.bio, cp.rating 
+            SELECT u.id, u.name, u.email, u.profile_picture, cp.specialties, cp.work_zone, cp.has_vehicle, cp.bio, cp.rating 
             FROM users u
             LEFT JOIN chef_profiles cp ON u.id = cp.user_id
             WHERE u.id = $1 AND u.role_id = 1
