@@ -6,6 +6,7 @@ import chefRoutes from './routes/chef.routes';
 import reviewRoutes from './routes/review.routes';
 import menuRoutes from './routes/menu.routes';
 import reservationRoutes from './routes/reservation.routes';
+import uploadRoutes from './routes/upload.routes';
 import { initDB } from './db';
 
 const app = express();
@@ -22,6 +23,7 @@ app.use('/api/chefs', chefRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/menus', menuRoutes);
 app.use('/api/reservations', reservationRoutes);
+app.use('/api/upload', uploadRoutes);
 
 // Health check
 app.get('/', (req, res) => {

@@ -13,13 +13,16 @@
     "author": "",
     "license": "ISC",
     "dependencies": {
+        "@types/multer": "^2.0.0",
         "bcrypt": "^6.0.0",
         "cors": "^2.8.5",
         "dotenv": "^17.2.3",
         "express": "^4.18.2",
         "firebase": "^12.8.0",
+        "firebase-admin": "^13.6.1",
         "google-auth-library": "^10.5.0",
         "jsonwebtoken": "^9.0.3",
+        "multer": "^2.0.2",
         "mysql2": "^3.16.0",
         "twilio": "^5.12.1"
     },
