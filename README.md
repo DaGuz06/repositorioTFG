@@ -7,7 +7,7 @@
 ## Requisitos Previos
 
 - **Node.js**: [Descargar aquí](https://nodejs.org/) (Versión 18+ recomendada)
-- **MySQL**: Servidor de base de datos en ejecución (ej. XAMPP o servicio local).
+- **PostgreSQL**: Servidor de base de datos en ejecución (ej. pgAdmin local o Supabase en la nube).
 - **Git** (Opcional, para clonar).
 
 ---
@@ -15,9 +15,10 @@
 ## Instalación Rápida (5 Minutos)
 
 ### 1. Base de Datos
-1. Abre tu gestor de base de datos (phpMyAdmin, Workbench, o Terminal).
+Este proyecto utiliza PostgreSQL alojado en Supabase (o un servidor local equivalente).
+1. Abre tu gestor de base de datos (pgAdmin, DBeaver, psql).
 2. Importa el archivo **`chef_pro_final.sql`** ubicado en la raíz de este proyecto.
-   - *Este script creará la base de datos `chef_pro`, las tablas y configurará todo automáticamente.*
+   - *Este script creará las tablas necesarias en tu esquema de PostgreSQL y cargará los datos de prueba (`users`, `chef_profiles`, etc.).*
 
 ### 2. Backend (Servidor)
 Abre una terminal en la carpeta `Backend - NodeJS`:
@@ -25,17 +26,18 @@ Abre una terminal en la carpeta `Backend - NodeJS`:
 ```bash
 cd "Backend - NodeJS"
 npm install
-# Crea un archivo .env si no existe y configura tus credenciales de BD (ver abajo)
-npm start
+npm run dev
 ```
 
 **Configuración `.env` (si es necesario):**
 Crea un archivo llamado `.env` en la carpeta `Backend - NodeJS` con:
 ```env
-DB_HOST=localhost
-DB_USER=root
-DB_PASSWORD=      # Tu contraseña (o déjalo vacío si usas XAMPP por defecto)
-DB_NAME=chef_pro
+DB_HOST=aws-1-eu-west-1.pooler.supabase.com
+DB_USER=postgres.uzqbhnvkiuaokkyvzxnv
+DB_PASSWORD=      # Tu contraseña o ChefProMedac
+DB_NAME=postgres
+DB_PORT=5432
+JWT_SECRET=super_secret_key
 PORT=3000
 ```
 
@@ -67,7 +69,7 @@ Asegúrate de importar `chef_pro_final.sql` para tener estos usuarios:
 
 ---
 **¿Problemas?**
-- Si el backend falla, verifica que MySQL esté corriendo y las credenciales en `.env` sean correctas.
+- Si el backend falla, verifica que PostgreSQL esté corriendo y las credenciales en `.env` sean correctas.
 - Si faltan tablas, vuelve a importar `chef_pro_final.sql`.
 - Si hay errores de dependencias en el frontend, ejecuta `npm install --legacy-peer-deps`.
 
@@ -82,8 +84,10 @@ El proyecto sigue una arquitectura **Cliente-Servidor (SPA)** separada:
 
 ### Tecnologías Clave
 *   **Frontend**: Angular 17+ (Standalone Components), TypeScript, CSS Modular.
-*   **Backend**: Node.js, Express, TypeScript, MySQL2 (Driver).
-*   **Base de Datos**: MySQL (Relacional).
+*   **Backend**: Node.js, Express, TypeScript.
+*   **Base de Datos**: PostgreSQL (Relacional).
+*   **Acceso a datos**: `pg` (node-postgres module) como gestor de conexiones eficiente.
+*   `db.ts`: Capa de abstracción para manejar el pool de conexiones y consultas (`pool.query(...)`).
 *   **Autenticación**: JWT (JSON Web Tokens) y Bcrypt (Hashing de contraseñas).
 
 ### Funcionalidades
