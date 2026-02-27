@@ -8,6 +8,8 @@ export interface Reservation {
     street: string;
     contact_number: string;
     chef_id?: number;
+    user_id?: number;
+    status?: string;
     date: Date;
 }
 
@@ -21,5 +23,17 @@ export class ReservationService {
 
     createReservation(reservation: Reservation): Observable<Reservation> {
         return this.http.post<Reservation>(this.apiUrl, reservation);
+    }
+
+    getReservationsByChef(chefId: number): Observable<Reservation[]> {
+        return this.http.get<Reservation[]>(`${this.apiUrl}/chef/${chefId}`);
+    }
+
+    updateReservationStatus(reservationId: number, status: string): Observable<Reservation> {
+        return this.http.patch<Reservation>(`${this.apiUrl}/${reservationId}/status`, { status });
+    }
+
+    checkCanReview(chefId: number, userId: number): Observable<{ canReview: boolean }> {
+        return this.http.get<{ canReview: boolean }>(`${this.apiUrl}/can-review/${chefId}/${userId}`);
     }
 }

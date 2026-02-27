@@ -23,6 +23,8 @@
 
         <ng-template #loggedInBlock>
           <li class="navbarLink"><a routerLink="/profile" class="profile-btn">Perfil</a></li>
+          <li class="navbarLink" *ngIf="isChef"><a routerLink="/chef-dashboard" class="profile-btn">Panel de Gestión</a>
+          </li>
           <li class="navbarLink"><a (click)="logout()" class="nav-link" style="cursor: pointer;">Cerrar Sesión</a></li>
         </ng-template>
       </ul>

@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
-import { Auth, GoogleAuthProvider, signInWithPopup } from '@angular/fire/auth';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
@@ -16,7 +15,6 @@ import { AuthService } from '../../services/auth.service';
 export class RegisterComponent {
   private http = inject(HttpClient);
   private router = inject(Router);
-  private auth = inject(Auth);
   private authService = inject(AuthService);
 
   formData = {
@@ -45,34 +43,7 @@ export class RegisterComponent {
     });
   }
 
-  loginWithGoogle() {
-    const provider = new GoogleAuthProvider();
-    signInWithPopup(this.auth, provider)
-      .then((result) => {
-        const credential = GoogleAuthProvider.credentialFromResult(result);
-        const token = credential?.idToken;
-
-        if (token) {
-          this.http.post('/api/auth/google', { token }).subscribe({
-            next: (res: any) => {
-               this.handleAuthResponse(res);
-            },
-            error: (err) => {
-              console.error('Google Auth backend error:', err);
-              alert('Error validando con el servidor: ' + (err.error?.message || err.message));
-            }
-          });
-        } else {
-           // Fallback or error if no Google token
-           console.error('No Google ID token found');
-           alert('No se pudo obtener el token de Google');
-        }
-      })
-      .catch((error) => {
-        console.error('Google Sign-In failed:', error);
-        alert('Error con Google Sign-In: ' + error.message);
-      });
-  }
+  // Google Auth Removed
 
   private handleAuthResponse(res: any) {
     if (res.success && res.token) {
@@ -80,17 +51,20 @@ export class RegisterComponent {
       if (res.user) {
         localStorage.setItem('chefpro_user', JSON.stringify(res.user));
       }
-      
+
       // Notify AuthService that user is logged in
       this.authService.setLoggedIn(true);
 
-      // Navigate based on role
+      // Navigate based on role and profile completion
       if (res.user && res.user.role_id === 1) {
-        this.router.navigate(['/complete-profile']);
+        if (!res.user.is_profile_completed) {
+          this.router.navigate(['/complete-profile']);
+        } else {
+          this.router.navigate(['/chef-dashboard']);
+        }
       } else {
         this.router.navigate(['/']);
       }
     }
   }
 }
-  

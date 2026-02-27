@@ -36,6 +36,23 @@ export const addReview = async (req: Request, res: Response) => {
         return;
     }
 
+    try {
+        // Enforce the completed reservation requirement
+        const { rows: resRows } = await pool.query(
+            "SELECT id FROM reservations WHERE chef_id = $1 AND user_id = $2 AND status = 'completed' LIMIT 1",
+            [chefId, userId]
+        );
+
+        if (resRows.length === 0) {
+            res.status(403).json({ message: 'Debes tener al menos una reserva completada con este chef para dejar un comentario.' });
+            return;
+        }
+    } catch (error) {
+        console.error('Error validating review permission:', error);
+        res.status(500).json({ message: 'Error en la validación de reseña' });
+        return;
+    }
+
     const client = await pool.connect();
     try {
         await client.query('BEGIN');

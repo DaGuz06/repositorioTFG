@@ -13,6 +13,7 @@ import { AuthService } from '../../services/auth.service';
 export class NavbarComponent implements OnInit {
   isMenuOpen = false;
   isLoggedIn = false;
+  isChef = false;
   private router = inject(Router);
   private authService = inject(AuthService);
 
@@ -20,6 +21,12 @@ export class NavbarComponent implements OnInit {
     // Subscribe to auth state changes
     this.authService.isLoggedIn$.subscribe(status => {
       this.isLoggedIn = status;
+      if (status) {
+        const user = this.authService.getCurrentUser();
+        this.isChef = user?.role_id === 1;
+      } else {
+        this.isChef = false;
+      }
     });
   }
 

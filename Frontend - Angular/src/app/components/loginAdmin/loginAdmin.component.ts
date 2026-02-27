@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
-import { Auth, GoogleAuthProvider, signInWithPopup } from '@angular/fire/auth';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
@@ -16,7 +15,6 @@ import { AuthService } from '../../services/auth.service';
 export class LoginAdminComponent {
   private http = inject(HttpClient);
   private router = inject(Router);
-  private auth = inject(Auth);
   private authService = inject(AuthService);
 
   formData = {
@@ -42,7 +40,7 @@ export class LoginAdminComponent {
       if (res.user) {
         localStorage.setItem('chefpro_user', JSON.stringify(res.user));
       }
-      
+
 
       this.authService.setLoggedIn(true);
 

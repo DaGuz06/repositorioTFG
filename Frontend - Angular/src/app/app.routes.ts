@@ -10,6 +10,7 @@ import { LoginAdminComponent } from './components/loginAdmin/loginAdmin.componen
 import { AdminPanelComponent } from './components/admin-panel/admin-panel.component';
 import { ReservationComponent } from './components/reservation/reservation.component';
 import { ChefDetailComponent } from './components/chef-detail/chef-detail.component';
+import { ChefDashboardComponent } from './components/chef-dashboard/chef-dashboard.component';
 
 
 export const routes: Routes = [
@@ -23,5 +24,6 @@ export const routes: Routes = [
     { path: 'chef/:id', component: ChefDetailComponent },
     { path: 'about', component: AboutComponent },
     { path: 'complete-profile', component: CompleteProfileComponent },
-    { path: 'reservations', component: ReservationComponent }
+    { path: 'reservations', component: ReservationComponent },
+    { path: 'chef-dashboard', component: ChefDashboardComponent }
 ];

@@ -28,6 +28,8 @@ export interface Reservation {
     street: string;
     contact_number: string;
     chef_id?: number;
+    user_id?: number;
+    status?: string;
     date: Date;
     created_at?: Date;
 }

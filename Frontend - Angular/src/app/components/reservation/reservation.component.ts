@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ReservationService, Reservation } from '../../services/reservation.service';
+import { AuthService } from '../../services/auth.service';
 import { Router, ActivatedRoute } from '@angular/router';
 
 @Component({
@@ -19,11 +20,11 @@ export class ReservationComponent {
         date: new Date()
     };
 
-    // Helper for date input (YYYY-MM-DDTHH:mm)
     dateString: string = '';
 
     constructor(
         private reservationService: ReservationService,
+        private authService: AuthService,
         private router: Router,
         private route: ActivatedRoute
     ) {
@@ -36,11 +37,16 @@ export class ReservationComponent {
 
     onSubmit() {
         this.reservation.date = new Date(this.dateString);
+
+        const currentUser = this.authService.getCurrentUser();
+        if (currentUser && currentUser.id) {
+            this.reservation.user_id = currentUser.id;
+        }
+
         this.reservationService.createReservation(this.reservation).subscribe({
             next: (res) => {
                 alert('Reserva creada con éxito');
-                // Reset form or navigate away
-                this.reservation = { name: '', street: '', contact_number: '', date: new Date() };
+                this.reservation = { name: '', street: '', contact_number: '', date: new Date(), chef_id: this.reservation.chef_id };
                 this.dateString = '';
             },
             error: (err) => {

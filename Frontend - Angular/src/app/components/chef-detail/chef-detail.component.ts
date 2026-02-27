@@ -7,6 +7,7 @@ import { ChefService, ChefProfile } from '../../services/chef.service';
 import { ReviewsComponent } from '../reviews/reviews.component';
 import { ReviewService } from '../../services/review.service';
 import { AuthService } from '../../services/auth.service';
+import { ReservationService } from '../../services/reservation.service';
 
 @Component({
     selector: 'app-chef-detail',
@@ -19,6 +20,7 @@ export class ChefDetailComponent implements OnInit {
     chef: ChefProfile | null = null;
     menus: any[] = [];
     loading = true;
+    canReview = false;
 
     // Review form
     newReviewText = '';
@@ -29,6 +31,7 @@ export class ChefDetailComponent implements OnInit {
     private chefService = inject(ChefService);
     private reviewService = inject(ReviewService);
     private authService = inject(AuthService);
+    private reservationService = inject(ReservationService);
     private router = inject(Router);
 
     ngOnInit() {
@@ -37,8 +40,19 @@ export class ChefDetailComponent implements OnInit {
             if (id) {
                 this.loadChef(id);
                 this.loadMenus(id);
+                this.checkReviewEligibility(id);
             }
         });
+    }
+
+    checkReviewEligibility(chefId: number) {
+        const user = this.authService.getCurrentUser();
+        if (user && user.id) {
+            this.reservationService.checkCanReview(chefId, user.id).subscribe({
+                next: (res) => this.canReview = res.canReview,
+                error: (err) => console.error('Error checking review eligibility', err)
+            });
+        }
     }
 
     loadChef(id: number) {

@@ -1,0 +1,37 @@
+<div class="dashboard-container">
+    <h2>Panel de Gestión de Reservas</h2>
+
+    <div *ngIf="isLoading" class="loading">
+        Cargando reservas...
+    </div>
+
+    <div *ngIf="!isLoading && reservations.length === 0" class="no-reservations">
+        No tienes reservas actualmente.
+    </div>
+
+    <div *ngIf="!isLoading && reservations.length > 0" class="reservations-list">
+        <div class="reservation-card" *ngFor="let res of reservations">
+            <div class="reservation-info">
+                <h3>Reserva a nombre de: {{ res.name }}</h3>
+                <p><strong>Fecha y Hora:</strong> {{ res.date | date:'short' }}</p>
+                <p><strong>Dirección:</strong> {{ res.street }}</p>
+                <p><strong>Contacto:</strong> {{ res.contact_number }}</p>
+                <p>
+                    <span class="status-badge" [ngClass]="'status-' + res.status">
+                        {{ res.status | uppercase }}
+                    </span>
+                </p>
+            </div>
+
+            <div class="reservation-actions" *ngIf="res.status === 'pending'">
+                <button class="btn btn-accept" (click)="updateStatus(res, 'accepted')">Aceptar</button>
+                <button class="btn btn-decline" (click)="updateStatus(res, 'declined')">Rechazar</button>
+            </div>
+
+            <div class="reservation-actions" *ngIf="res.status === 'accepted'">
+                <button class="btn btn-complete" (click)="updateStatus(res, 'completed')">Marcar como
+                    Completada</button>
+            </div>
+        </div>
+    </div>
+</div>
