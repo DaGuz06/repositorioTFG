@@ -23,7 +23,6 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
           <div class="avatar-wrapper">
             <div class="avatar-circle" (click)="fileInput.click()" title="Cambiar foto de perfil">
               <img *ngIf="profilePicture" [src]="profilePicture | imageUrl" alt="Foto de perfil" class="avatar-img" />
-              <img *ngIf="profilePicture" [src]="profilePicture" alt="Foto de perfil" class="avatar-img" />
               <span *ngIf="!profilePicture">{{ getInitials(user.name) }}</span>
               <div class="camera-overlay">
                 <span class="camera-icon">📷</span>
@@ -59,6 +58,8 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
           <div class="menus-grid">
               <!-- Menu Items -->
               <div class="menu-card" *ngFor="let menu of menus">
+                  <img *ngIf="menu.image_url" [src]="menu.image_url | imageUrl" [alt]="menu.title" class="menu-image-card">
+                  <img *ngIf="!menu.image_url" src="https://placehold.co/300x200?text=Plato" [alt]="menu.title" class="menu-image-card">
                   <h3>{{ menu.title }}</h3>
                   <p class="menu-desc">{{ menu.description || 'Sin descripción' }}</p>
                   <span class="price">{{ menu.price }}€</span>
@@ -80,9 +81,21 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
               <input formControlName="title" placeholder="Nombre del plato/menú">
               <input formControlName="description" placeholder="Descripción">
               <input type="number" formControlName="price" placeholder="Precio (€)">
+              
+              <div class="file-upload-section">
+                <label>Foto del plato:</label>
+                <input type="file" accept="image/*" (change)="onMenuImageSelected($event)" class="file-input">
+                <div *ngIf="menuImagePreview" class="image-preview">
+                   <img [src]="menuImagePreview" alt="Previsualización del plato">
+                </div>
+                <div class="upload-status" *ngIf="menuUploadStatus">{{ menuUploadStatus }}</div>
+              </div>
+
               <div class="form-actions">
                   <button type="button" (click)="showAddMenuForm = false">Cancelar</button>
-                  <button type="submit" [disabled]="menuForm.invalid">Guardar</button>
+                  <button type="submit" [disabled]="menuForm.invalid || isUploadingMenu">
+                      {{ isUploadingMenu ? 'Guardando...' : 'Guardar' }}
+                  </button>
               </div>
           </form>
       </div>
@@ -246,6 +259,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
         border-color: #C7A446;
     }
     .menu-card h3 { margin: 0 0 0.8rem 0; font-size: 1.3rem; color: #333; }
+    .menu-image-card { width: 100%; height: 160px; object-fit: cover; border-radius: 8px; margin-bottom: 1rem; }
     .menu-desc { color: #666; font-size: 0.95rem; flex-grow: 1; margin-bottom: 1rem; line-height: 1.4; }
     .price { font-weight: 700; color: #7A8A56; font-size: 1.3rem; align-self: flex-end; }
     .delete-btn {
@@ -279,6 +293,11 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
         padding: 1rem; border: 1px solid #ddd; border-radius: 8px; transition: border-color 0.3s;
     }
     .add-menu-form input:focus { border-color: #C7A446; outline: none; }
+    .file-upload-section { margin-bottom: 1.5rem; text-align: left; }
+    .file-upload-section label { display: block; margin-bottom: 0.5rem; color: #666; font-weight: 600; }
+    .file-input { padding: 0.5rem !important; border: 1px dashed #ccc !important; }
+    .image-preview { margin-top: 1rem; width: 100%; max-height: 200px; overflow: hidden; border-radius: 8px; }
+    .image-preview img { width: 100%; height: 100%; object-fit: cover; }
     .form-actions { display: flex; gap: 1rem; justify-content: flex-end; }
     .form-actions button {
         padding: 0.8rem 2rem; cursor: pointer; border-radius: 25px;
@@ -309,6 +328,12 @@ export class ProfileComponent implements OnInit {
   showAddMenuForm = false;
   profilePicture: string | null = null;
   uploadStatus: string = '';
+
+  // Menu Upload state
+  menuImageFile: File | null = null;
+  menuImagePreview: string | null = null;
+  menuUploadStatus: string = '';
+  isUploadingMenu = false;
 
   private chefService = inject(ChefService);
   private fb = inject(FormBuilder);
@@ -384,22 +409,86 @@ export class ProfileComponent implements OnInit {
       });
   }
 
+  onMenuImageSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) {
+      this.menuImageFile = null;
+      this.menuImagePreview = null;
+      return;
+    }
+
+    const file = input.files[0];
+    if (!file.type.startsWith('image/')) {
+      this.menuUploadStatus = '❌ Solo se permiten imágenes';
+      this.menuImageFile = null;
+      return;
+    }
+
+    this.menuUploadStatus = '';
+    this.menuImageFile = file;
+
+    const reader = new FileReader();
+    reader.onload = (e) => this.menuImagePreview = e.target?.result as string;
+    reader.readAsDataURL(file);
+  }
+
   onAddMenu() {
     if (this.menuForm.invalid) return;
 
-    const newMenu = {
-      ...this.menuForm.value,
-      chef_id: this.user.id
+    this.isUploadingMenu = true;
+    this.menuUploadStatus = 'Guardando información...';
+
+    const saveMenuData = (imageUrl: string = '') => {
+      const newMenu = {
+        ...this.menuForm.value,
+        chef_id: this.user.id,
+        image_url: imageUrl
+      };
+
+      this.chefService.addMenu(newMenu).subscribe({
+        next: () => {
+          this.loadChefData(this.user.id);
+          this.showAddMenuForm = false;
+          this.menuForm.reset();
+          this.menuImageFile = null;
+          this.menuImagePreview = null;
+          this.menuUploadStatus = '';
+          this.isUploadingMenu = false;
+        },
+        error: (err) => {
+          console.error('Error adding menu', err);
+          this.menuUploadStatus = '❌ Error al crear el plato';
+          this.isUploadingMenu = false;
+        }
+      });
     };
 
-    this.chefService.addMenu(newMenu).subscribe({
-      next: () => {
-        this.loadChefData(this.user.id);
-        this.showAddMenuForm = false;
-        this.menuForm.reset();
-      },
-      error: (err) => console.error('Error adding menu', err)
-    });
+    if (this.menuImageFile) {
+      this.menuUploadStatus = '⏳ Subiendo imagen...';
+      const formData = new FormData();
+      formData.append('photo', this.menuImageFile);
+
+      const token = localStorage.getItem('chefpro_token');
+      const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
+
+      this.http.post<any>('/api/upload/menu-picture', formData, { headers }).subscribe({
+        next: (res) => {
+          if (res.success && res.menuPictureUrl) {
+            saveMenuData(res.menuPictureUrl);
+          } else {
+            this.menuUploadStatus = '❌ Error al subir imagen';
+            this.isUploadingMenu = false;
+          }
+        },
+        error: (err) => {
+          console.error('Upload Error', err);
+          this.menuUploadStatus = '❌ Error de conexión al subir';
+          this.isUploadingMenu = false;
+        }
+      });
+    } else {
+      saveMenuData('');
+    }
   }
 
   deleteMenu(id: number) {

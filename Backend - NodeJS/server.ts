@@ -17,9 +17,6 @@ const PORT = process.env['PORT'] || 3000;
 app.use(cors());
 app.use(express.json());
 
-// Servir archivos estáticos (fotos de perfil)
-app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
-
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);

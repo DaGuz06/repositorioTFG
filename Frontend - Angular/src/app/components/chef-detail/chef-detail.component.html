@@ -18,8 +18,8 @@
         <h2>Platos Disponibles</h2>
         <div class="menu-grid" *ngIf="menus.length > 0; else noMenus">
             <div class="menu-card" *ngFor="let menu of menus">
-                <img [src]="menu.image_url | imageUrl" [alt]="menu.title"
-                    onerror="this.src='https://placehold.co/300x200?text=Plato'">
+                <img *ngIf="menu.image_url" [src]="menu.image_url | imageUrl" [alt]="menu.title">
+                <img *ngIf="!menu.image_url" src="https://placehold.co/300x200?text=Plato" alt="Plato por defecto">
                 <div class="menu-details">
                     <h3>{{ menu.title }}</h3>
                     <p>{{ menu.description }}</p>
