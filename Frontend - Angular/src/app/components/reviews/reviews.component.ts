@@ -19,6 +19,34 @@ export class ReviewsComponent implements OnInit {
   ngOnInit() {
     if (this.chefId) {
       this.loadReviews();
+    } else {
+      // Hardcoded reviews for the Home page
+      this.reviews = [
+        {
+          chef_id: 0,
+          user_id: 101,
+          user_name: 'María García',
+          text: 'Una experiencia culinaria inolvidable. Los sabores estaban perfectos y la presentación fue impecable.',
+          rating: 5,
+          profile_picture: ''
+        },
+        {
+          chef_id: 0,
+          user_id: 102,
+          user_name: 'Carlos Rodríguez',
+          text: 'Muy buen servicio y comida deliciosa. Sin duda volveremos a repetir para nuestro próximo evento.',
+          rating: 5,
+          profile_picture: ''
+        },
+        {
+          chef_id: 0,
+          user_id: 103,
+          user_name: 'Laura Méndez',
+          text: 'El chef fue muy profesional y educado. Platos ricos, aunque la carne estaba un poco pasada para mi gusto.',
+          rating: 4,
+          profile_picture: ''
+        }
+      ];
     }
   }
 
