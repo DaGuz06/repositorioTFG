@@ -1,11 +1,12 @@
 import { Component, Input, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReviewService, Review } from '../../services/review.service';
+import { ImageUrlPipe } from '../../pipes/image-url.pipe';
 
 @Component({
   selector: 'app-reviews',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ImageUrlPipe],
   templateUrl: './reviews.component.html',
   styleUrls: ['./reviews.component.css']
 })

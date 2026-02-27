@@ -3,8 +3,9 @@
   <div *ngIf="reviews.length > 0; else noReviews" class="reviews-grid">
     <div class="review-card" *ngFor="let review of reviews">
       <div class="review-header">
-        <img src="/profileIcon.svg" alt="User" class="avatar">
-        <h3>Usuario #{{ review.user_id }}</h3>
+        <img [src]="review.profile_picture ? (review.profile_picture | imageUrl) : '/profileIcon.svg'" alt="User"
+          class="avatar" onerror="this.src='/profileIcon.svg'">
+        <h3>{{ review.user_name || ('Usuario #' + review.user_id) }}</h3>
       </div>
       <p class="review-comment">"{{ review.text }}"</p>
       <div class="review-rating">

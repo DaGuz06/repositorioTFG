@@ -72,9 +72,9 @@ CREATE TABLE IF NOT EXISTS reservations (
 
 -- Test Data (Password: 123456)
 INSERT INTO users (id, name, email, password, role_id, active) VALUES
-(1, 'Pedro', 'chef@test.com', '$2b$10$alqg/Pszd0DryiURfvAvZqoJ4y3gRUgPSWjqLhHKfUXdfURHRq', 1, 1),
-(2, 'Pepe', 'cliente@test.com', '$2b$10$alqg/Pszd0DryiURfvAvZqoJ4y3gRUgPSWjqLhHKfUXdfURHRq', 2, 1),
-(3, 'David', 'admin@test.com', '$2b$10$alqg/Pszd0DryiURfvAvZqoJ4y3gRUgPSWjqLhHKfUXdfURHRq', 3, 1)
+(1, 'Pedro', 'chef@test.com', '$2b$10$.FnPjXUYLoljPcOmngwmwuzA9Kv3ZkDfoPzT.BsY5e1DVBKSaGyBm', 1, 1),
+(2, 'Pepe', 'cliente@test.com', '$2b$10$.FnPjXUYLoljPcOmngwmwuzA9Kv3ZkDfoPzT.BsY5e1DVBKSaGyBm', 2, 1),
+(3, 'David', 'admin@test.com', '$2b$10$.FnPjXUYLoljPcOmngwmwuzA9Kv3ZkDfoPzT.BsY5e1DVBKSaGyBm', 3, 1)
 ON CONFLICT (id) DO NOTHING;
 
 -- Sync sequence after explicit id inserts

@@ -5,15 +5,15 @@ export const getReviews = async (req: Request, res: Response) => {
     const queryChefId = req.query['chefId'];
 
     try {
-        let query = 'SELECT * FROM reviews';
+        let query = 'SELECT r.*, u.name as user_name, u.profile_picture FROM reviews r JOIN users u ON r.user_id = u.id';
         const params: any[] = [];
 
         if (queryChefId) {
-            query += ' WHERE chef_id = $1';
+            query += ' WHERE r.chef_id = $1';
             params.push(parseInt(queryChefId as string));
         }
 
-        query += ' ORDER BY created_at DESC';
+        query += ' ORDER BY r.created_at DESC';
 
         const { rows } = await pool.query(query, params);
         res.json(rows);
@@ -28,6 +28,11 @@ export const addReview = async (req: Request, res: Response) => {
 
     if (!chefId || !userId || !rating) {
         res.status(400).json({ message: 'Missing required fields' });
+        return;
+    }
+
+    if (Number(chefId) === Number(userId)) {
+        res.status(400).json({ message: 'Un chef no puede dejarse una reseña a sí mismo' });
         return;
     }
 
