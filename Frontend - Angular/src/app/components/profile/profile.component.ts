@@ -23,6 +23,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
           <div class="avatar-wrapper">
             <div class="avatar-circle" (click)="fileInput.click()" title="Cambiar foto de perfil">
               <img *ngIf="profilePicture" [src]="profilePicture | imageUrl" alt="Foto de perfil" class="avatar-img" />
+              <img *ngIf="profilePicture" [src]="profilePicture" alt="Foto de perfil" class="avatar-img" />
               <span *ngIf="!profilePicture">{{ getInitials(user.name) }}</span>
               <div class="camera-overlay">
                 <span class="camera-icon">📷</span>
@@ -364,6 +365,7 @@ export class ProfileComponent implements OnInit {
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
 
     this.http.post<any>('/api/upload/profile-picture', formData, { headers })
+    this.http.post<any>('http://localhost:3000/api/upload/profile-picture', formData, { headers })
       .subscribe({
         next: (res) => {
           if (res.success) {

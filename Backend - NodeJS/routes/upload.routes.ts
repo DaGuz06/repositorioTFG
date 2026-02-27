@@ -36,6 +36,10 @@ const upload = multer({
     }
   }
 });
+import { uploadProfilePicture } from '../controllers/upload.controller';
+
+const router = Router();
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } }); // 5MB max
 
 const SECRET_KEY = process.env['JWT_SECRET'] || 'super_secret_key';
 
