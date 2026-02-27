@@ -1,3 +1,3 @@
 export const environment = {
-  apiUrl: '' // Se deja vacío en local para que actúe el proxy.conf.json
+  apiUrl: 'https://repositoriotfg-4j6x.onrender.com' // URL del backend proporcionada por el usuario
 };
