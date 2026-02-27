@@ -75,16 +75,27 @@ export const updateReservationStatus = async (req: Request, res: Response) => {
 export const checkCanReview = async (req: Request, res: Response) => {
     try {
         const { chefId, userId } = req.params;
-        const { rows } = await pool.query(
+
+        // Check if user has a completed reservation with this chef
+        const { rows: reservationRows } = await pool.query(
             "SELECT id FROM reservations WHERE chef_id = $1 AND user_id = $2 AND status = 'completed' LIMIT 1",
             [chefId, userId]
         );
 
-        if (rows.length > 0) {
-            res.status(200).json({ canReview: true });
-        } else {
-            res.status(200).json({ canReview: false });
-        }
+        // Check if user already left a review for this chef
+        const { rows: reviewRows } = await pool.query(
+            'SELECT id FROM reviews WHERE chef_id = $1 AND user_id = $2 LIMIT 1',
+            [chefId, userId]
+        );
+
+        const hasCompletedReservation = reservationRows.length > 0;
+        const hasReviewed = reviewRows.length > 0;
+
+        res.status(200).json({
+            canReview: hasCompletedReservation && !hasReviewed,
+            hasCompletedReservation,
+            hasReviewed
+        });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Internal server error' });

@@ -33,7 +33,7 @@ export class ReservationService {
         return this.http.patch<Reservation>(`${this.apiUrl}/${reservationId}/status`, { status });
     }
 
-    checkCanReview(chefId: number, userId: number): Observable<{ canReview: boolean }> {
-        return this.http.get<{ canReview: boolean }>(`${this.apiUrl}/can-review/${chefId}/${userId}`);
+    checkCanReview(chefId: number, userId: number): Observable<{ canReview: boolean; hasCompletedReservation: boolean; hasReviewed: boolean }> {
+        return this.http.get<{ canReview: boolean; hasCompletedReservation: boolean; hasReviewed: boolean }>(`${this.apiUrl}/can-review/${chefId}/${userId}`);
     }
 }

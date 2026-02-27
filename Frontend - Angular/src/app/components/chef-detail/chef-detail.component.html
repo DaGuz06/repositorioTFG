@@ -1,55 +1,124 @@
 <div class="profile-container" *ngIf="chef">
-    <div class="chef-header">
-        <div class="image-wrapper">
-            <img [src]="chef.image | imageUrl" [alt]="chef.name"
-                onerror="this.src='https://placehold.co/400x300?text=Chef'">
+  <div class="chef-header">
+    <div class="image-wrapper">
+      <img
+        [src]="chef.image | imageUrl"
+        [alt]="chef.name"
+        onerror="this.src = 'https://placehold.co/400x300?text=Chef'"
+      />
+    </div>
+    <div class="chef-info">
+      <h1>{{ chef.name }}</h1>
+      <p class="specialty">{{ chef.specialties.join(', ') }}</p>
+      <div class="rating-display">
+        <div class="stars-visual">
+          <span
+            *ngFor="let star of getStarArray(chef.rating || 0)"
+            class="star-icon"
+            [ngClass]="{ full: star === 'full', half: star === 'half', empty: star === 'empty' }"
+            >★</span
+          >
         </div>
-        <div class="chef-info">
-            <h1>{{ chef.name }}</h1>
-            <p class="specialty">{{ chef.specialties.join(', ') }}</p>
-            <div class="rating">⭐ {{ chef.rating }}</div>
-            <p class="bio">{{ chef.bio }}</p>
-            <p class="zone"><strong>Zona de trabajo:</strong> {{ chef.work_zone }}</p>
-            <button class="reserve-btn" (click)="reserve()">Reservar</button>
+        <span class="rating-number">{{ chef.rating || '0.0' }}</span>
+        <span class="rating-separator">·</span>
+        <span class="rating-count" *ngIf="reviewsComponent"
+          >{{ reviewsComponent.reviews.length }} reseña{{
+            reviewsComponent.reviews.length !== 1 ? 's' : ''
+          }}</span
+        >
+      </div>
+      <p class="bio">{{ chef.bio }}</p>
+      <p class="zone"><strong>Zona de trabajo:</strong> {{ chef.work_zone }}</p>
+      <button class="reserve-btn" (click)="reserve()">Reservar</button>
+    </div>
+  </div>
+
+  <div class="menu-section">
+    <h2>Platos Disponibles</h2>
+    <div class="menu-grid" *ngIf="menus.length > 0; else noMenus">
+      <div class="menu-card" *ngFor="let menu of menus">
+        <img *ngIf="menu.image_url" [src]="menu.image_url | imageUrl" [alt]="menu.title" />
+        <img
+          *ngIf="!menu.image_url"
+          src="https://placehold.co/300x200?text=Plato"
+          alt="Plato por defecto"
+        />
+        <div class="menu-details">
+          <h3>{{ menu.title }}</h3>
+          <p>{{ menu.description }}</p>
+          <span class="price">{{ menu.price }} €</span>
         </div>
+      </div>
+    </div>
+    <ng-template #noMenus>
+      <p>Este chef aún no ha publicado platos.</p>
+    </ng-template>
+  </div>
+
+  <!-- Review Form Section -->
+  <div class="review-form-section" *ngIf="canReview">
+    <h2>Deja tu reseña</h2>
+
+    <!-- Success Message -->
+    <div class="message success-message" *ngIf="successMessage">
+      <span class="message-icon">✅</span>
+      {{ successMessage }}
     </div>
 
-    <div class="menu-section">
-        <h2>Platos Disponibles</h2>
-        <div class="menu-grid" *ngIf="menus.length > 0; else noMenus">
-            <div class="menu-card" *ngFor="let menu of menus">
-                <img *ngIf="menu.image_url" [src]="menu.image_url | imageUrl" [alt]="menu.title">
-                <img *ngIf="!menu.image_url" src="https://placehold.co/300x200?text=Plato" alt="Plato por defecto">
-                <div class="menu-details">
-                    <h3>{{ menu.title }}</h3>
-                    <p>{{ menu.description }}</p>
-                    <span class="price">{{ menu.price }} €</span>
-                </div>
-            </div>
-        </div>
-        <ng-template #noMenus>
-            <p>Este chef aún no ha publicado platos.</p>
-        </ng-template>
+    <!-- Error Message -->
+    <div class="message error-message" *ngIf="errorMessage">
+      <span class="message-icon">⚠️</span>
+      {{ errorMessage }}
     </div>
 
-    <div class="review-form-section" *ngIf="canReview">
-        <h2>Deja tu reseña</h2>
-        <div class="form-container">
-            <div class="rating-input">
-                <label>Calificación:</label>
-                <div class="stars-selector">
-                    <span *ngFor="let star of [1,2,3,4,5]" (click)="newReviewRating = star"
-                        [class.active]="star <= newReviewRating">★</span>
-                </div>
-            </div>
-            <textarea [(ngModel)]="newReviewText" placeholder="Cuéntanos tu experiencia..."></textarea>
-            <button (click)="submitReview()" [disabled]="isSubmittingReview">
-                {{ isSubmittingReview ? 'Enviando...' : 'Enviar Reseña' }}
-            </button>
+    <div class="form-container">
+      <div class="rating-input">
+        <label>Calificación:</label>
+        <div class="stars-selector">
+          <span
+            *ngFor="let star of [1, 2, 3, 4, 5]"
+            (click)="newReviewRating = star"
+            [class.active]="star <= newReviewRating"
+            >★</span
+          >
         </div>
+      </div>
+      <textarea [(ngModel)]="newReviewText" placeholder="Cuéntanos tu experiencia..."></textarea>
+      <button (click)="submitReview()" [disabled]="isSubmittingReview">
+        {{ isSubmittingReview ? 'Enviando...' : 'Enviar Reseña' }}
+      </button>
     </div>
+  </div>
 
-    <app-reviews *ngIf="chef.id" [chefId]="chef.id"></app-reviews>
+  <!-- Contextual Info Messages -->
+  <div class="review-info-section" *ngIf="!canReview && isLoggedIn && !isOwnProfile">
+    <div class="info-card" *ngIf="hasReviewed">
+      <span class="info-icon">✅</span>
+      <p>Ya has dejado tu reseña para este chef. ¡Gracias por tu opinión!</p>
+    </div>
+    <div class="info-card" *ngIf="!hasCompletedReservation && !hasReviewed">
+      <span class="info-icon">📋</span>
+      <p>Para dejar una reseña, primero debes completar una reserva con este chef.</p>
+      <button class="reserve-btn-small" (click)="reserve()">Hacer una reserva</button>
+    </div>
+  </div>
+
+  <div class="review-info-section" *ngIf="!isLoggedIn">
+    <div class="info-card">
+      <span class="info-icon">🔒</span>
+      <p>Inicia sesión para dejar una reseña.</p>
+    </div>
+  </div>
+
+  <!-- Success message shown after form hides -->
+  <div class="review-form-section" *ngIf="successMessage && !canReview">
+    <div class="message success-message">
+      <span class="message-icon">✅</span>
+      {{ successMessage }}
+    </div>
+  </div>
+
+  <app-reviews *ngIf="chef.id" [chefId]="chef.id"></app-reviews>
 </div>
 
 <div *ngIf="loading" class="loading">Cargando perfil...</div>

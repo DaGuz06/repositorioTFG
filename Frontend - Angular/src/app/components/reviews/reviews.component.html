@@ -5,12 +5,15 @@
       <div class="review-header">
         <img [src]="review.profile_picture ? (review.profile_picture | imageUrl) : '/profileIcon.svg'" alt="User"
           class="avatar" onerror="this.src='/profileIcon.svg'">
-        <h3>{{ review.user_name || ('Usuario #' + review.user_id) }}</h3>
+        <div class="review-header-info">
+          <h3>{{ review.user_name || ('Usuario #' + review.user_id) }}</h3>
+          <span class="review-date" *ngIf="review.created_at">{{ review.created_at | date:'d MMM yyyy' }}</span>
+        </div>
       </div>
-      <p class="review-comment">"{{ review.text }}"</p>
       <div class="review-rating">
         <span *ngFor="let star of [1,2,3,4,5]" class="star" [class.filled]="star <= review.rating">★</span>
       </div>
+      <p class="review-comment">"{{ review.text }}"</p>
     </div>
   </div>
   <ng-template #noReviews>
