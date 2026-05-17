@@ -3,6 +3,18 @@
     <h2>Crear Cuenta</h2>
     <p class="auth-subtitle">Únete a la comunidad de ChefPro</p>
 
+    <!-- Success Message -->
+    <div class="success-box" *ngIf="successMessage">
+      <span class="msg-icon">✅</span>
+      {{ successMessage }}
+    </div>
+
+    <!-- Error Message -->
+    <div class="error-box" *ngIf="errorMessage">
+      <span class="msg-icon">⚠️</span>
+      {{ errorMessage }}
+    </div>
+
     <form class="auth-form" (ngSubmit)="onSubmit()">
       <div class="form-group">
         <label for="name">Nombre Completo</label>
@@ -35,7 +47,11 @@
         </select>
       </div>
 
-      <button type="submit" class="auth-button">Registrarse</button>
+      <button type="submit" class="auth-button" [disabled]="isLoading">
+        <span *ngIf="!isLoading">Registrarse</span>
+        <span *ngIf="isLoading" class="spinner"></span>
+        <span *ngIf="isLoading">Registrando...</span>
+      </button>
     </form>
 
     <p class="auth-footer">

@@ -390,7 +390,6 @@ export class ProfileComponent implements OnInit {
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
 
     this.http.post<any>('/api/upload/profile-picture', formData, { headers })
-    this.http.post<any>('http://localhost:3000/api/upload/profile-picture', formData, { headers })
       .subscribe({
         next: (res) => {
           if (res.success) {

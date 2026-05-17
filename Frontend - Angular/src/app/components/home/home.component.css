@@ -2,11 +2,13 @@
   width: 100%;
 }
 
+/* ===== HERO ===== */
 .hero-section {
-  height: 80vh;
-  background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('/wallpaper.avif');
+  height: 85vh;
+  background-image: linear-gradient(135deg, rgba(45, 48, 53, 0.7), rgba(0, 0, 0, 0.5)), url('/wallpaper.avif');
   background-size: cover;
   background-position: center;
+  background-attachment: fixed;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -14,42 +16,215 @@
   color: white;
   margin-top: 10px;
   border-radius: 10px;
+  position: relative;
 }
 
 .hero-content {
   max-width: 800px;
   padding: 2rem;
+  animation: heroFadeIn 1s ease-out;
 }
 
-.hero-content h1 {
+@keyframes heroFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hero-title {
   font-size: 3.5rem;
   margin-bottom: 1rem;
   font-weight: 700;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  line-height: 1.2;
+}
+
+.highlight {
+  color: #C7A446;
 }
 
 .subtitle {
-  font-size: 1.5rem;
-  margin-bottom: 2rem;
+  font-size: 1.4rem;
+  margin-bottom: 2.5rem;
   font-weight: 300;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+  line-height: 1.6;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
 }
 
 .cta-button {
-  background-color: #C7A446;
-  color: white;
-  border: none;
-  padding: 1rem 3rem;
-  font-size: 1.2rem;
+  display: inline-block;
+  padding: 1rem 2.5rem;
+  font-size: 1.1rem;
   font-weight: 600;
   border-radius: 50px;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  text-decoration: none;
+  border: none;
 }
 
-.cta-button:hover {
-  background-color: #7A8A56;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.3);
+.cta-button.primary {
+  background-color: #C7A446;
+  color: white;
+  box-shadow: 0 4px 15px rgba(199, 164, 70, 0.4);
+}
+
+.cta-button.primary:hover {
+  background-color: #b5933a;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(199, 164, 70, 0.5);
+}
+
+.cta-button.secondary {
+  background-color: transparent;
+  color: white;
+  border: 2px solid white;
+}
+
+.cta-button.secondary:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+  transform: translateY(-3px);
+}
+
+/* ===== CÓMO FUNCIONA ===== */
+.how-it-works {
+  padding: 5rem 2rem;
+  text-align: center;
+  background-color: #ffffff;
+}
+
+.how-it-works h2 {
+  font-size: 2.5rem;
+  color: #2D3035;
+  margin-bottom: 0.5rem;
+}
+
+.section-subtitle {
+  color: #666;
+  font-size: 1.15rem;
+  margin-bottom: 3.5rem;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.steps-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 2.5rem;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.step-card {
+  background: #FAFAFA;
+  padding: 2.5rem 2rem;
+  border-radius: 16px;
+  position: relative;
+  transition: all 0.3s ease;
+  border: 1px solid #f0f0f0;
+}
+
+.step-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+  border-color: #C7A446;
+}
+
+.step-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.step-number {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  font-size: 3rem;
+  font-weight: 800;
+  color: rgba(199, 164, 70, 0.12);
+  line-height: 1;
+}
+
+.step-card h3 {
+  font-size: 1.4rem;
+  color: #2D3035;
+  margin-bottom: 0.75rem;
+}
+
+.step-card p {
+  color: #666;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+/* ===== STATS ===== */
+.stats-section {
+  padding: 4rem 2rem;
+  background: linear-gradient(135deg, #2D3035 0%, #3a3d42 100%);
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 2rem;
+  max-width: 1000px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1.5rem;
+}
+
+.stat-number {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #C7A446;
+  font-family: var(--font-primary);
+}
+
+.stat-label {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.75);
+  font-weight: 500;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: 2.5rem;
+  }
+
+  .subtitle {
+    font-size: 1.1rem;
+  }
+
+  .hero-section {
+    height: 70vh;
+    background-attachment: scroll;
+  }
+
+  .how-it-works h2 {
+    font-size: 2rem;
+  }
+
+  .stat-number {
+    font-size: 2rem;
+  }
 }

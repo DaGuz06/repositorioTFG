@@ -22,14 +22,21 @@ export class LoginComponent {
     password: ''
   };
 
+  isLoading = false;
+  errorMessage = '';
+
   onSubmit() {
+    this.isLoading = true;
+    this.errorMessage = '';
+
     this.http.post('/api/auth/login', this.formData).subscribe({
       next: (res: any) => {
+        this.isLoading = false;
         this.handleAuthResponse(res);
       },
       error: (err) => {
-        console.error(err);
-        alert('Error en el inicio de sesión: ' + (err.error?.message || 'Error desconocido'));
+        this.isLoading = false;
+        this.errorMessage = err.error?.message || 'Error en el inicio de sesión. Inténtalo de nuevo.';
       }
     });
   }
@@ -57,4 +64,3 @@ export class LoginComponent {
     }
   }
 }
-

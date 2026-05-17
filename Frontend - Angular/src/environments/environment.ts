@@ -1,3 +1,3 @@
 export const environment = {
-  apiUrl: '' // Se deja vacío en local para que actúe el proxy.conf.json
+  apiUrl: '' // Vacío en desarrollo: el proxy de Angular redirige /api → localhost:3000
 };

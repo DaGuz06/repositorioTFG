@@ -25,46 +25,38 @@ export class RegisterComponent {
     role_id: 2 // Default to Diner
   };
 
+  isLoading = false;
+  errorMessage = '';
+  successMessage = '';
+
   onSubmit() {
+    this.errorMessage = '';
+    this.successMessage = '';
+
     if (this.formData.password !== this.formData.confirmPassword) {
-      alert('Las contraseñas no coinciden');
+      this.errorMessage = 'Las contraseñas no coinciden';
       return;
     }
 
+    if (this.formData.password.length < 6) {
+      this.errorMessage = 'La contraseña debe tener al menos 6 caracteres';
+      return;
+    }
+
+    this.isLoading = true;
+
     this.http.post('/api/auth/register', this.formData).subscribe({
       next: (res: any) => {
-        alert('Registro exitoso! Por favor inicia sesión.');
-        this.router.navigate(['/login']);
+        this.isLoading = false;
+        this.successMessage = '¡Registro exitoso! Redirigiendo al login...';
+        setTimeout(() => {
+          this.router.navigate(['/login']);
+        }, 1500);
       },
       error: (err) => {
-        console.error(err);
-        alert('Error en el registro: ' + (err.error?.message || 'Error desconocido'));
+        this.isLoading = false;
+        this.errorMessage = err.error?.message || 'Error en el registro. Inténtalo de nuevo.';
       }
     });
-  }
-
-  // Google Auth Removed
-
-  private handleAuthResponse(res: any) {
-    if (res.success && res.token) {
-      localStorage.setItem('chefpro_token', res.token);
-      if (res.user) {
-        localStorage.setItem('chefpro_user', JSON.stringify(res.user));
-      }
-
-      // Notify AuthService that user is logged in
-      this.authService.setLoggedIn(true);
-
-      // Navigate based on role and profile completion
-      if (res.user && res.user.role_id === 1) {
-        if (!res.user.is_profile_completed) {
-          this.router.navigate(['/complete-profile']);
-        } else {
-          this.router.navigate(['/chef-dashboard']);
-        }
-      } else {
-        this.router.navigate(['/']);
-      }
-    }
   }
 }
