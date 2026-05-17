@@ -1,0 +1,12 @@
+# Netlify config for ChefPro Angular SPA
+
+[build]
+  base = "Frontend - Angular"
+  command = "npm install && npx ng build --configuration production"
+  publish = "dist/chefpro"
+
+# SPA fallback — all routes go to index.html
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
