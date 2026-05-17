@@ -11,6 +11,9 @@ import { AdminPanelComponent } from './components/admin-panel/admin-panel.compon
 import { ReservationComponent } from './components/reservation/reservation.component';
 import { ChefDetailComponent } from './components/chef-detail/chef-detail.component';
 import { ChefDashboardComponent } from './components/chef-dashboard/chef-dashboard.component';
+import { authGuard } from './guards/auth.guard';
+import { chefGuard } from './guards/chef.guard';
+import { adminGuard } from './guards/admin.guard';
 
 
 export const routes: Routes = [
@@ -18,12 +21,12 @@ export const routes: Routes = [
     { path: 'login', component: LoginComponent },
     { path: 'register', component: RegisterComponent },
     { path: 'loginAdmin', component: LoginAdminComponent },
-    { path: 'admin-panel', component: AdminPanelComponent },
-    { path: 'profile', component: ProfileComponent },
+    { path: 'admin-panel', component: AdminPanelComponent, canActivate: [adminGuard] },
+    { path: 'profile', component: ProfileComponent, canActivate: [authGuard] },
     { path: 'chefs', component: ChefsComponent },
     { path: 'chef/:id', component: ChefDetailComponent },
     { path: 'about', component: AboutComponent },
-    { path: 'complete-profile', component: CompleteProfileComponent },
-    { path: 'reservations', component: ReservationComponent },
-    { path: 'chef-dashboard', component: ChefDashboardComponent }
+    { path: 'complete-profile', component: CompleteProfileComponent, canActivate: [authGuard] },
+    { path: 'reservations', component: ReservationComponent, canActivate: [authGuard] },
+    { path: 'chef-dashboard', component: ChefDashboardComponent, canActivate: [chefGuard] }
 ];

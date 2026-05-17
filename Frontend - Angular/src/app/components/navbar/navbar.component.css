@@ -8,11 +8,35 @@ Estilo del navbar en conjunto
     align-items: center;
     padding: 0.2rem 2rem;
     background-color: #ffffff;
-    box-shadow: 0 2px 4px #C7A446;
+    box-shadow: 0 2px 8px rgba(199, 164, 70, 0.25);
     border-radius: 10px;
     position: sticky;
     top: 0;
     z-index: 1000;
+    transition: box-shadow 0.3s ease;
+}
+
+/* Active link */
+.active-link {
+    color: #C7A446 !important;
+    position: relative;
+}
+
+.active-link::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: #C7A446;
+    border-radius: 2px;
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from { width: 0; opacity: 0; }
+    to { width: 100%; opacity: 1; }
 }
 
 .nav-link {
@@ -20,10 +44,15 @@ Estilo del navbar en conjunto
     color: #333;
     font-weight: 500;
     transition: color 0.3s ease;
+    position: relative;
 }
 
 .nav-link:hover {
     color: #C7A446;
+}
+
+.logout-link:hover {
+    color: #dc3545;
 }
 
 .register-btn {
@@ -46,7 +75,6 @@ Estilo del navbar en conjunto
 .profile-btn {
     text-decoration: none;
     background-color: #7A8A56;
-    /* Different green */
     color: white;
     padding: 0.5rem 1.5rem;
     border-radius: 25px;
@@ -61,12 +89,13 @@ Estilo del navbar en conjunto
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
 }
 
+/* Hamburger menu */
 .hamburger-menu {
     display: none;
     flex-direction: column;
     justify-content: space-between;
-    width: 30px;
-    height: 21px;
+    width: 28px;
+    height: 20px;
     background: transparent;
     border: none;
     cursor: pointer;
@@ -79,7 +108,22 @@ Estilo del navbar en conjunto
     height: 3px;
     background-color: #333;
     border-radius: 10px;
-    transition: all 0.3s ease;
+    transition: all 0.35s ease;
+    transform-origin: center;
+}
+
+/* Hamburger → X animation */
+.hamburger-menu.open .bar:nth-child(1) {
+    transform: translateY(8.5px) rotate(45deg);
+}
+
+.hamburger-menu.open .bar:nth-child(2) {
+    opacity: 0;
+    transform: scaleX(0);
+}
+
+.hamburger-menu.open .bar:nth-child(3) {
+    transform: translateY(-8.5px) rotate(-45deg);
 }
 
 /*
@@ -107,16 +151,12 @@ Estilo parte derecha del navbar
     cursor: pointer;
 }
 
-
 .navbarLink img {
     height: 35px;
     width: auto;
     vertical-align: middle;
     margin-right: 0.5rem;
-
 }
-
-
 
 /*
 Estilo parte izquierda del navbar
@@ -148,50 +188,32 @@ Estilo parte izquierda del navbar
     cursor: pointer;
 }
 
-/*
-Estilo de la barra de busqueda
-*/
-
-.search-container {
-    position: relative;
-    display: flex;
-    align-items: center;
-}
-
-.search-icon {
-    position: absolute;
-    left: 15px;
-    height: 14px;
-    width: 14px;
-    cursor: pointer;
-    opacity: 0.6;
-    transition: opacity 0.3s ease;
-}
-
-.search-icon:hover {
-    opacity: 1;
-}
-
-.search-input {
-    padding: 0.6rem 1.2rem 0.6rem 3rem;
-    border-radius: 25px;
-    border: 1px solid #ccc;
-    outline: none;
-    font-size: 1rem;
-    transition: all 0.3s ease;
-    width: 240px;
-}
-
-.search-input:focus {
-    border-color: #C7A446;
-    box-shadow: 0 0 5px rgba(199, 164, 70, 0.5);
-    width: 280px;
+/* Backdrop (mobile) */
+.menu-backdrop {
+    display: none;
 }
 
 /* Estilo responsive */
 @media (max-width: 768px) {
     .hamburger-menu {
         display: flex;
+    }
+
+    .menu-backdrop.active {
+        display: block;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.35);
+        z-index: 998;
+        animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
     }
 
     .navbarList {
@@ -202,7 +224,7 @@ Estilo de la barra de busqueda
         top: 100%;
         left: 0;
         background-color: #ffffff;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
         padding: 1rem 0;
         border-radius: 0 0 10px 10px;
         margin-left: 0;
@@ -212,6 +234,18 @@ Estilo de la barra de busqueda
 
     .navbarList.active {
         display: flex;
+        animation: slideDown 0.3s ease-out;
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 
     .navbarLink {
@@ -237,22 +271,14 @@ Estilo de la barra de busqueda
         order: 3;
     }
 
-    /* barra de busqueda */
-    .navbarLink.search-container {
-        position: relative;
-        width: auto;
+    /* Active link in mobile: no underline */
+    .active-link::after {
+        display: none;
     }
 
-    .search-input {
-        width: 200px;
-
-    }
-
-    .search-input:focus {
-        width: 220px;
-    }
-
-    .search-icon {
-        left: 15px;
+    .active-link {
+        background-color: rgba(199, 164, 70, 0.1);
+        padding: 0.3rem 1rem;
+        border-radius: 20px;
     }
 }

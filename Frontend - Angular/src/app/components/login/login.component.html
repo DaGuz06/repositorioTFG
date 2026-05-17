@@ -3,6 +3,12 @@
     <h2>Iniciar Sesión</h2>
     <p class="auth-subtitle">Bienvenido de nuevo a ChefPro</p>
 
+    <!-- Error Message -->
+    <div class="error-box" *ngIf="errorMessage">
+      <span class="error-icon">⚠️</span>
+      {{ errorMessage }}
+    </div>
+
     <form class="auth-form" (ngSubmit)="onSubmit()">
       <div class="form-group">
         <label for="email">Correo Electrónico</label>
@@ -15,7 +21,11 @@
           required>
       </div>
 
-      <button type="submit" class="auth-button">Entrar</button>
+      <button type="submit" class="auth-button" [disabled]="isLoading">
+        <span *ngIf="!isLoading">Entrar</span>
+        <span *ngIf="isLoading" class="spinner"></span>
+        <span *ngIf="isLoading">Entrando...</span>
+      </button>
     </form>
 
     <p class="auth-footer">

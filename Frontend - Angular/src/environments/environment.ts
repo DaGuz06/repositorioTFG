@@ -1,3 +1,3 @@
 export const environment = {
-  apiUrl: 'https://repositoriotfg-4j6x.onrender.com' // URL del backend proporcionada por el usuario
+  apiUrl: '' // Vacío en desarrollo: el proxy de Angular redirige /api → localhost:3000
 };

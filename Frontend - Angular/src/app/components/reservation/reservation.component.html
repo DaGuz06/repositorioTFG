@@ -1,27 +1,50 @@
 <div class="reservation-container">
-  <h2>Nueva Reserva</h2>
-  <form (ngSubmit)="onSubmit()" #reservationForm="ngForm">
-    <div class="form-group">
-      <label for="name">Nombre</label>
-      <input type="text" id="name" name="name" [(ngModel)]="reservation.name" required class="form-control">
+  <div class="reservation-card">
+    <h2>Nueva Reserva</h2>
+    <p class="reservation-subtitle" *ngIf="chefName">Reservando con el chef <strong>{{ chefName }}</strong></p>
+    <p class="reservation-subtitle" *ngIf="!chefName">Completa el formulario para reservar</p>
+
+    <!-- Success Message -->
+    <div class="success-box" *ngIf="successMessage">
+      <span class="msg-icon">✅</span>
+      {{ successMessage }}
     </div>
 
-    <div class="form-group">
-      <label for="street">Calle</label>
-      <input type="text" id="street" name="street" [(ngModel)]="reservation.street" required class="form-control">
+    <!-- Error Message -->
+    <div class="error-box" *ngIf="errorMessage">
+      <span class="msg-icon">⚠️</span>
+      {{ errorMessage }}
     </div>
 
-    <div class="form-group">
-      <label for="contact_number">Número de Contacto</label>
-      <input type="text" id="contact_number" name="contact_number" [(ngModel)]="reservation.contact_number" required
-        class="form-control">
-    </div>
+    <form (ngSubmit)="onSubmit()" #reservationForm="ngForm">
+      <div class="form-group">
+        <label for="name">Nombre</label>
+        <input type="text" id="name" name="name" [(ngModel)]="reservation.name" required class="form-control"
+          placeholder="Tu nombre completo">
+      </div>
 
-    <div class="form-group">
-      <label for="date">Fecha y Hora</label>
-      <input type="datetime-local" id="date" name="date" [(ngModel)]="dateString" required class="form-control">
-    </div>
+      <div class="form-group">
+        <label for="street">Dirección</label>
+        <input type="text" id="street" name="street" [(ngModel)]="reservation.street" required class="form-control"
+          placeholder="Calle, número, piso...">
+      </div>
 
-    <button type="submit" [disabled]="!reservationForm.form.valid" class="btn-submit">Reservar</button>
-  </form>
+      <div class="form-group">
+        <label for="contact_number">Número de Contacto</label>
+        <input type="tel" id="contact_number" name="contact_number" [(ngModel)]="reservation.contact_number" required
+          class="form-control" placeholder="+34 600 000 000">
+      </div>
+
+      <div class="form-group">
+        <label for="date">Fecha y Hora</label>
+        <input type="datetime-local" id="date" name="date" [(ngModel)]="dateString" required class="form-control">
+      </div>
+
+      <button type="submit" [disabled]="!reservationForm.form.valid || isLoading" class="btn-submit">
+        <span *ngIf="!isLoading">Confirmar Reserva</span>
+        <span *ngIf="isLoading" class="spinner"></span>
+        <span *ngIf="isLoading">Reservando...</span>
+      </button>
+    </form>
+  </div>
 </div>

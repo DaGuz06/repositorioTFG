@@ -2,30 +2,32 @@
   <nav>
     <div class="navbar">
 
-      <button class="hamburger-menu" (click)="toggleMenu()" aria-label="Toggle menu">
+      <ul class="navbarLogo">
+        <li class="logo" routerLink="/" style="cursor: pointer;"><img src="/logoPro.jpg" alt="ChefPro Logo"></li>
+      </ul>
+
+      <button class="hamburger-menu" [class.open]="isMenuOpen" (click)="toggleMenu()" aria-label="Abrir menú de navegación">
         <span class="bar"></span>
         <span class="bar"></span>
         <span class="bar"></span>
       </button>
 
-      <ul class="navbarLogo">
-        <li class="logo" routerLink="/" style="cursor: pointer;"><img src="/logoPro.jpg" alt="logo"></li>
-      </ul>
+      <div class="menu-backdrop" [class.active]="isMenuOpen" (click)="toggleMenu()"></div>
 
       <ul class="navbarList" [class.active]="isMenuOpen">
-        <li class="navbarLink"><a routerLink="/about" class="nav-link">Sobre Nosotros</a></li>
-        <li class="navbarLink"><a routerLink="/chefs" class="nav-2link">Chefs</a></li>
+        <li class="navbarLink"><a routerLink="/about" routerLinkActive="active-link" class="nav-link">Sobre Nosotros</a></li>
+        <li class="navbarLink"><a routerLink="/chefs" routerLinkActive="active-link" class="nav-link">Chefs</a></li>
 
         <ng-container *ngIf="!isLoggedIn; else loggedInBlock">
-          <li class="navbarLink"><a routerLink="/login" class="nav-link">Iniciar Sesión</a></li>
+          <li class="navbarLink"><a routerLink="/login" routerLinkActive="active-link" class="nav-link">Iniciar Sesión</a></li>
           <li class="navbarLink"><a routerLink="/register" class="register-btn">Registrarse</a></li>
         </ng-container>
 
         <ng-template #loggedInBlock>
-          <li class="navbarLink"><a routerLink="/profile" class="profile-btn">Perfil</a></li>
-          <li class="navbarLink" *ngIf="isChef"><a routerLink="/chef-dashboard" class="profile-btn">Panel de Gestión</a>
+          <li class="navbarLink"><a routerLink="/profile" routerLinkActive="active-link" class="profile-btn">Perfil</a></li>
+          <li class="navbarLink" *ngIf="isChef"><a routerLink="/chef-dashboard" routerLinkActive="active-link" class="profile-btn">Panel de Gestión</a>
           </li>
-          <li class="navbarLink"><a (click)="logout()" class="nav-link" style="cursor: pointer;">Cerrar Sesión</a></li>
+          <li class="navbarLink"><a (click)="logout()" class="nav-link logout-link" style="cursor: pointer;">Cerrar Sesión</a></li>
         </ng-template>
       </ul>
     </div>
